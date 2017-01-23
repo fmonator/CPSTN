@@ -1,0 +1,161 @@
+﻿Build started 2017-01-21 2:56:19 PM.
+     1>Project "C:\Users\fabio\Desktop\sk.seky.soccerball-master\log4cpp\msvc10\log4cppLIB\log4cppLIB.vcxproj" on node 2 (Rebuild target(s)).
+     1>CustomBuild:
+         Performing Custom Build Tools
+         MC: Compiling C:\Users\fabio\Desktop\sk.seky.soccerball-master\log4cpp\msvc10\log4cppLIB\..\NTEventLogCategories.mc
+         Microsoft (R) Windows (R) Resource Compiler Version 6.2.9200.16384
+         
+         Copyright (C) Microsoft Corporation.  All rights reserved.
+         
+         
+         Microsoft (R) Incremental Linker Version 11.00.61030.0
+         Copyright (C) Microsoft Corporation.  All rights reserved.
+         
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I..\..\include /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _LIB /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\Debug/" /Fd".\Debug/vc110.pdb" /FR".\Debug\\" /Gd /TP /analyze- /errorReport:prompt ..\..\src\AbortAppender.cpp ..\..\src\Appender.cpp ..\..\src\AppendersFactory.cpp ..\..\src\AppenderSkeleton.cpp ..\..\src\BasicConfigurator.cpp ..\..\src\BasicLayout.cpp ..\..\src\BufferingAppender.cpp ..\..\src\Category.cpp ..\..\src\CategoryStream.cpp ..\..\src\Configurator.cpp ..\..\src\DummyThreads.cpp ..\..\src\FactoryParams.cpp ..\..\src\FileAppender.cpp ..\..\src\Filter.cpp ..\..\src\FixedContextCategory.cpp ..\..\src\HierarchyMaintainer.cpp ..\..\src\IdsaAppender.cpp ..\..\src\LayoutAppender.cpp ..\..\src\LayoutsFactory.cpp ..\..\src\LevelEvaluator.cpp ..\..\src\Localtime.cpp ..\..\src\LoggingEvent.cpp ..\..\src\MSThreads.cpp ..\..\src\NDC.cpp ..\..\src\NTEventLogAppender.cpp ..\..\src\OmniThreads.cpp ..\..\src\OstreamAppender.cpp ..\..\src\PassThroughLayout.cpp ..\..\src\PatternLayout.cpp ..\..\src\PortabilityImpl.cpp ..\..\src\Priority.cpp ..\..\src\Properties.cpp ..\..\src\PropertyConfigurator.cpp ..\..\src\PropertyConfiguratorImpl.cpp ..\..\src\PThreads.cpp ..\..\src\RemoteSyslogAppender.cpp ..\..\src\RollingFileAppender.cpp ..\..\src\SimpleConfigurator.cpp ..\..\src\SimpleLayout.cpp ..\..\src\SmtpAppender.cpp ..\..\src\StringQueueAppender.cpp ..\..\src\StringUtil.cpp ..\..\src\TimeStamp.cpp ..\..\src\TriggeringEventEvaluatorFactory.cpp ..\..\src\Win32DebugAppender.cpp
+         AbortAppender.cpp
+         Appender.cpp
+         AppendersFactory.cpp
+         AppenderSkeleton.cpp
+         BasicConfigurator.cpp
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\basicconfigurator.cpp(29): warning C4996: 'dup': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _dup. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(307) : see declaration of 'dup'
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\basicconfigurator.cpp(29): warning C4996: 'fileno': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _fileno. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(711) : see declaration of 'fileno'
+         BasicLayout.cpp
+         BufferingAppender.cpp
+         Category.cpp
+         CategoryStream.cpp
+         Configurator.cpp
+         DummyThreads.cpp
+         FactoryParams.cpp
+         FileAppender.cpp
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\fileappender.cpp(37): warning C4996: 'open': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _open. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(315) : see declaration of 'open'
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\fileappender.cpp(54): warning C4996: 'close': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _close. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(305) : see declaration of 'close'
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\fileappender.cpp(81): warning C4996: 'write': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _write. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(321) : see declaration of 'write'
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\fileappender.cpp(88): warning C4996: 'open': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _open. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(315) : see declaration of 'open'
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\fileappender.cpp(93): warning C4996: 'close': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _close. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(305) : see declaration of 'close'
+         Filter.cpp
+         FixedContextCategory.cpp
+         HierarchyMaintainer.cpp
+         IdsaAppender.cpp
+         LayoutAppender.cpp
+         LayoutsFactory.cpp
+         LevelEvaluator.cpp
+         Generating Code...
+         Compiling...
+         Localtime.cpp
+         LoggingEvent.cpp
+         MSThreads.cpp
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\msthreads.cpp(11): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(357) : see declaration of 'sprintf'
+         NDC.cpp
+         NTEventLogAppender.cpp
+         OmniThreads.cpp
+         OstreamAppender.cpp
+         PassThroughLayout.cpp
+         PatternLayout.cpp
+         PortabilityImpl.cpp
+         Priority.cpp
+         Properties.cpp
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\properties.cpp(125): warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdlib.h(449) : see declaration of 'getenv'
+         PropertyConfigurator.cpp
+         PropertyConfiguratorImpl.cpp
+         PThreads.cpp
+         RemoteSyslogAppender.cpp
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\remotesyslogappender.cpp(140): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(357) : see declaration of 'sprintf'
+         RollingFileAppender.cpp
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\rollingfileappender.cpp(41): warning C4244: 'initializing' : conversion from 'float' to 'unsigned short', possible loss of data
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\rollingfileappender.cpp(46): warning C4244: '=' : conversion from 'float' to 'unsigned short', possible loss of data
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\rollingfileappender.cpp(62): warning C4996: 'close': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _close. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(305) : see declaration of 'close'
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\rollingfileappender.cpp(81): warning C4996: 'open': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _open. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(315) : see declaration of 'open'
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\rollingfileappender.cpp(86): warning C4996: 'lseek': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _lseek. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(313) : see declaration of 'lseek'
+         SimpleConfigurator.cpp
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\simpleconfigurator.cpp(109): warning C4996: 'dup': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _dup. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(307) : see declaration of 'dup'
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\simpleconfigurator.cpp(109): warning C4996: 'fileno': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _fileno. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(711) : see declaration of 'fileno'
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\simpleconfigurator.cpp(113): warning C4996: 'dup': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _dup. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\io.h(307) : see declaration of 'dup'
+         SimpleLayout.cpp
+         SmtpAppender.cpp
+         Generating Code...
+         Compiling...
+         StringQueueAppender.cpp
+         StringUtil.cpp
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\stringutil.cpp(50): warning C4996: '_vsnprintf': This function or variable may be unsafe. Consider using _vsnprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 11.0\vc\include\stdio.h(349) : see declaration of '_vsnprintf'
+         TimeStamp.cpp
+     1>c:\users\fabio\desktop\sk.seky.soccerball-master\log4cpp\src\timestamp.cpp(38): warning C4244: '=' : conversion from 'time_t' to 'int', possible loss of data
+         TriggeringEventEvaluatorFactory.cpp
+         Win32DebugAppender.cpp
+         Generating Code...
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1299,5): warning MSB8012: TargetPath(C:\Users\fabio\Desktop\sk.seky.soccerball-master\log4cpp\msvc10\log4cppLIB\.\Debug\log4cppLIB.lib) does not match the Library's OutputFile property value (C:\Users\fabio\Desktop\sk.seky.soccerball-master\log4cpp\msvc10\log4cppLIB\Debug\log4cppD.lib). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Lib.OutputFile).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppBuild.targets(1301,5): warning MSB8012: TargetName(log4cppLIB) does not match the Library's OutputFile property value (log4cppD). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Lib.OutputFile).
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\Lib.exe /OUT:"Debug\log4cppD.lib" /NOLOGO .\Debug/AbortAppender.obj
+         .\Debug/Appender.obj
+         .\Debug/AppendersFactory.obj
+         .\Debug/AppenderSkeleton.obj
+         .\Debug/BasicConfigurator.obj
+         .\Debug/BasicLayout.obj
+         .\Debug/BufferingAppender.obj
+         .\Debug/Category.obj
+         .\Debug/CategoryStream.obj
+         .\Debug/Configurator.obj
+         .\Debug/DummyThreads.obj
+         .\Debug/FactoryParams.obj
+         .\Debug/FileAppender.obj
+         .\Debug/Filter.obj
+         .\Debug/FixedContextCategory.obj
+         .\Debug/HierarchyMaintainer.obj
+         .\Debug/IdsaAppender.obj
+         .\Debug/LayoutAppender.obj
+         .\Debug/LayoutsFactory.obj
+         .\Debug/LevelEvaluator.obj
+         .\Debug/Localtime.obj
+         .\Debug/LoggingEvent.obj
+         .\Debug/MSThreads.obj
+         .\Debug/NDC.obj
+         .\Debug/NTEventLogAppender.obj
+         .\Debug/OmniThreads.obj
+         .\Debug/OstreamAppender.obj
+         .\Debug/PassThroughLayout.obj
+         .\Debug/PatternLayout.obj
+         .\Debug/PortabilityImpl.obj
+         .\Debug/Priority.obj
+         .\Debug/Properties.obj
+         .\Debug/PropertyConfigurator.obj
+         .\Debug/PropertyConfiguratorImpl.obj
+         .\Debug/PThreads.obj
+         .\Debug/RemoteSyslogAppender.obj
+         .\Debug/RollingFileAppender.obj
+         .\Debug/SimpleConfigurator.obj
+         .\Debug/SimpleLayout.obj
+         .\Debug/SmtpAppender.obj
+         .\Debug/StringQueueAppender.obj
+         .\Debug/StringUtil.obj
+         .\Debug/TimeStamp.obj
+         .\Debug/TriggeringEventEvaluatorFactory.obj
+         .\Debug/Win32DebugAppender.obj
+     1>PThreads.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+     1>OmniThreads.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+     1>DummyThreads.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+         log4cppLIB.vcxproj -> C:\Users\fabio\Desktop\sk.seky.soccerball-master\log4cpp\msvc10\log4cppLIB\.\Debug\log4cppLIB.lib
+       BscMake:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\bscmake.exe /nologo /o".\Debug\log4cppLIB.bsc" .\Debug\AbortAppender.sbr .\Debug\Appender.sbr .\Debug\AppendersFactory.sbr .\Debug\AppenderSkeleton.sbr .\Debug\BasicConfigurator.sbr .\Debug\BasicLayout.sbr .\Debug\BufferingAppender.sbr .\Debug\Category.sbr .\Debug\CategoryStream.sbr .\Debug\Configurator.sbr .\Debug\DummyThreads.sbr .\Debug\FactoryParams.sbr .\Debug\FileAppender.sbr .\Debug\Filter.sbr .\Debug\FixedContextCategory.sbr .\Debug\HierarchyMaintainer.sbr .\Debug\IdsaAppender.sbr .\Debug\LayoutAppender.sbr .\Debug\LayoutsFactory.sbr .\Debug\LevelEvaluator.sbr .\Debug\Localtime.sbr .\Debug\LoggingEvent.sbr .\Debug\MSThreads.sbr .\Debug\NDC.sbr .\Debug\NTEventLogAppender.sbr .\Debug\OmniThreads.sbr .\Debug\OstreamAppender.sbr .\Debug\PassThroughLayout.sbr .\Debug\PatternLayout.sbr .\Debug\PortabilityImpl.sbr .\Debug\Priority.sbr .\Debug\Properties.sbr .\Debug\PropertyConfigurator.sbr .\Debug\PropertyConfiguratorImpl.sbr .\Debug\PThreads.sbr .\Debug\RemoteSyslogAppender.sbr .\Debug\RollingFileAppender.sbr .\Debug\SimpleConfigurator.sbr .\Debug\SimpleLayout.sbr .\Debug\SmtpAppender.sbr .\Debug\StringQueueAppender.sbr .\Debug\StringUtil.sbr .\Debug\TimeStamp.sbr .\Debug\TriggeringEventEvaluatorFactory.sbr .\Debug\Win32DebugAppender.sbr
+     1>Done Building Project "C:\Users\fabio\Desktop\sk.seky.soccerball-master\log4cpp\msvc10\log4cppLIB\log4cppLIB.vcxproj" (Rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:01:06.75
