@@ -7,11 +7,11 @@
 #pragma comment(lib, "ws2_32.lib") 
 
 #ifdef _DEBUG
-	#define CREATE_LOG4CPP() &log4cpp::Category::getInstance( typeid(this).name() )
+	#define CREATE_log4CPP() &log4cpp::Category::getInstance( typeid(this).name() )
 	#pragma comment(lib, "log4cppD.lib")
 #else
-	//#define CREATE_LOG4CPP() null
-	#define CREATE_LOG4CPP() &log4cpp::Category::getInstance( typeid(this).name() )
+	//#define CREATE_log4CPP() null
+	#define CREATE_log4CPP() &log4cpp::Category::getInstance( typeid(this).name() )
 	#pragma comment(lib, "log4cppLIB.lib")
 #endif
 

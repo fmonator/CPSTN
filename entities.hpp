@@ -55,7 +55,7 @@ enum DetectedObjectType {
 	UNKNOWN,
 	ARTEFACT,
 	BANNER, 
-	PERSON,  // out playground 
+	PERSON,  // out playground -> TODO: fix this because linesmen are being identified as players
 	GOAL_KEEPER_A, 
 	GOAL_KEEPER_B, 
 	PLAYER_A, 

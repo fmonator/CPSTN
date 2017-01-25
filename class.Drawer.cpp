@@ -10,7 +10,7 @@ Drawer::Drawer() {
 	m_roi = new ThresholdColor(Scalar(35, 72, 50), Scalar(51, 142, 144));
 	m_roi->createTrackBars("roiMask");
 
-	log = CREATE_LOG4CPP();
+	log = CREATE_log4CPP();
 	if(log != NULL) {
 		log->debug("Starting drawer");
 	}

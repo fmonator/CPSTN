@@ -5,7 +5,7 @@
 Soccer::Soccer() 
 {
 	// Nacitaj vsetky casti Soccera (Load all parts Soccer)
-	log = CREATE_LOG4CPP();
+	log = CREATE_log4CPP();
 	if(log != NULL) {
 		log->debug("Starting Soccer");
 	}
@@ -54,6 +54,7 @@ void Soccer::commandArrive(string& cmd) {
 	}
 	if(cmd == "f") {
 		m_drawer->switchDrawType();
+		// e.g. silhouette, circle object, label
 		return;
 	}
 	if(cmd == "c") {
@@ -98,12 +99,57 @@ void Soccer::loadNextFrame() {
 
 void Soccer::processFrame(Frame* in) {
 	// Predspracuj vstup podla potreby, vypocitaj fgMasku
-	// Preprocess input as appropriate, calculate mask
+	// (Preprocess input as appropriate, calculate mask)
 	resize(m_actual->data, m_actual->data, WIN_SIZE);
 
-	// Learning MOG algorithm
+	// Learning MOG algorithm (background subtraction)
 	if(m_learning) {
-		if(in->pos_msec < m_mogLearnFrames) {
+		// look at first frame and check lines
+		if (in->pos_msec == 1) { // starts at 1 not at 0.
+			// this assumes the camera is static and that gameplay boundary lines are visible. 
+			// In the future we would have to redo this whenever the camera moved
+			log->debugStream() << "Looking at first frame for camera angle and field analysis.";
+			
+			Mat dst, cdst;
+			/*
+			// I'm thinking of preprocessing the image: lower contrast may allow differences in green to be detected
+			// higher contrast may get rid of some of the noise
+			double gain = 0.5; // contrast [1.0,3.0] (as it goes up, you get more random lines but not the ones I want)
+			int bias = 0; // brightness [0,100]
+
+			for( int y = 0; y < m_actual->data.rows; y++ ){ 
+				for( int x = 0; x < m_actual->data.cols; x++ ){ 
+					for( int c = 0; c < 3; c++ ) { 
+						m_actual->data.at<Vec3b>(y,x)[c] = saturate_cast<uchar>( gain*( m_actual->data.at<Vec3b>(y,x)[c] ) + bias ); 
+					}
+				}
+			}
+			*/
+
+			Canny(m_actual->data, dst, 50, 200, 3);
+			cvtColor(dst, cdst, CV_GRAY2BGR);
+			//HoughLines(dst, lines, 1, CV_PI/180, 150, 0, 0 ); // original
+			HoughLines(dst, lines, 2, CV_PI/180, 175, 0, 0 );
+
+			for( size_t i = 0; i < lines.size(); i++ ) {
+			  float rho = lines[i][0], theta = lines[i][1];
+			  Point pt1, pt2;
+			  double a = cos(theta), b = sin(theta);
+			  double x0 = a*rho, y0 = b*rho;
+			  pt1.x = cvRound(x0 + 1000*(-b));
+			  pt1.y = cvRound(y0 + 1000*(a));
+			  pt2.x = cvRound(x0 - 1000*(-b));
+			  pt2.y = cvRound(y0 - 1000*(a));
+			  line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
+			} 
+
+			log->debugStream() << lines.size();
+			imshow("source", m_actual->data);
+			imshow(to_string(lines.size()), cdst);
+			
+		}
+
+		if(in->pos_msec < m_mogLearnFrames) { // here's where it trains
 			Mat mask;
 			m_pMOG2->operator()(in->data, mask, 1.0 / m_mogLearnFrames);
 			return;
@@ -116,10 +162,12 @@ void Soccer::processFrame(Frame* in) {
 		return;
 	} 
 	
+	/* // No idea why Seksy had this
 	// Pauza pre konkretny snimok (Pause for specific frames)
 	if(in->pos_msec == 355) {
 		m_pause = true;
 	}
+	*/
 
 	processImage(m_actual->data.clone());
 }
@@ -129,7 +177,6 @@ void Soccer::learningEnd() {
 	m_record->doReset();
 	m_learning = false;
 	log->debugStream() << "End of learning.";
-
 	m_detector = new ObjectDetector();
 	m_drawer = new Drawer();
 	m_tracer = new ObjectTracer();
@@ -166,7 +213,7 @@ void Soccer::processImage(Mat& input) {
 
 
 void Soccer::Init() {
-	m_record = new VideoRecord("data/filmrole5.avi");
+	m_record = new VideoRecord("data/filmrole6.avi"); // note: 3 and 4 are of centre field, focus on 2,5,6
 	m_pMOG2 = new BackgroundSubtractorMOG2(200, 16.0, false);
 	m_grass = new ThresholdColor(Scalar(35, 72, 50), Scalar(51, 142, 144));
 	m_learning = true;
@@ -197,5 +244,5 @@ Size Drawer::WIN_SIZE = Size(640, 480);
 // TODO: - group when hands touch so we'll use opening and see if there is not a player torso 2x, 3x
 // TODO: - torso zistim extra erosion, where the hands and head odstranim
 // TODO: - using the path a player how many players are there
-// TODO: - the ball is solved Druhym flow, then look through Hugh circle of a certain size and white background gradient motion
+// TODO: - the ball is solved Druhym flow, then look through Hough circle of a certain size and white background gradient motion
 

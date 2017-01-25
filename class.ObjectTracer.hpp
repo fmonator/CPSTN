@@ -42,7 +42,7 @@ private:
 
 public:
 	ObjectTracer() {
-		log = CREATE_LOG4CPP();
+		log = CREATE_log4CPP();
 		LOST_OBJECT_PERCENT = 0.3; 
 		EQUALS_OBJECT_PERCENT = 0.7;
 		init();		

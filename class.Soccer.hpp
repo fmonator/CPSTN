@@ -16,6 +16,7 @@ private:
 	log4cpp::Category* log;
 	static Size WIN_SIZE;
 	void commandArrive(string& str);
+	vector<Vec2f> lines; // for determining gameplay area and camera angle
 
 	// Spracovanie videa (video processing)
 	bool m_pause;

@@ -48,7 +48,7 @@ void App::LimitFPS(double delta) {
 }
 
 App::App() {
-	blog = CREATE_LOG4CPP();
+	blog = CREATE_log4CPP();
 }
 
 void App::start() {
