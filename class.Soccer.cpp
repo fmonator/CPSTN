@@ -128,11 +128,75 @@ void Soccer::processFrame(Frame* in) {
 
 			Canny(m_actual->data, dst, 50, 200, 3);
 			cvtColor(dst, cdst, CV_GRAY2BGR);
+			vector<Vec2f> allLines;
 			//HoughLines(dst, lines, 1, CV_PI/180, 150, 0, 0 ); // original
-			HoughLines(dst, lines, 2, CV_PI/180, 175, 0, 0 );
+			HoughLines(dst, allLines, 2, CV_PI/180, 175, 0, 0 );
 
+			Vec2f angledLine, topLine, bottomLine;
+			
+			for( size_t i = 0; i < allLines.size(); i++ ) {
+			  float rho = allLines[i][0], theta = allLines[i][1];
+
+			  double deg_theta = (theta*180/CV_PI);
+			  while (deg_theta >= 360) deg_theta -=360;
+
+			  // Find vertical lines: (not really useful)
+			  // if ( (deg_theta >= 179) && (deg_theta <= 181) ) lines.push_back(allLines.at(i));
+
+			  // Find horizontal lines:
+			  if ((deg_theta >= 89.5) && (deg_theta <= 90.5) ) lines.push_back(allLines.at(i));
+
+			  // Find the goal line: (should be about 150 or 30 for our data)
+			  if ((deg_theta >= 111) && (deg_theta <= 158) ) angledLine = allLines.at(i);
+			  else if ((deg_theta >= 12) && (deg_theta <= 45) ) angledLine = allLines.at(i);
+			} 
+
+			// Note: (0,0) is top left of screen
+
+			// Based on how I've done line detection and weeded out what I didn't need, 
+			// From middle of screen the first horizontal line above it is the touchline
+			// Going down, the second one is the touchline (the first is the edge of the penalty area)
+
+			// So step 1: find the centre of the screen
+			Point centre;
+			centre.y = WIN_SIZE.height/2;
+			centre.x = WIN_SIZE.width/2;
+
+			//std::cout<<"The centre of the screen is at ("<<centre.x<<','<<centre.y<<").\n";
+
+			// find the relevant lines:
+
+			// Find bottom line
+			int min = WIN_SIZE.height;
+			for( size_t i = 0; i < lines.size(); i++ ) {
+			  float rho = lines[i][0];
+
+			  if (rho <= centre.x) continue;
+
+			  if (rho < min) {
+				  min = rho;
+				  bottomLine = lines.at(i);
+			  }
+			}
+
+			// Find top line
+			int max = 0;
+			for( size_t i = 0; i < lines.size(); i++ ) {
+			  float rho = lines[i][0];
+
+			  if (rho >= (centre.x/2)) continue;
+
+			  if (rho > max) {
+				  max = rho;
+				  topLine = lines.at(i);
+			  }
+			}
+
+			/*
 			for( size_t i = 0; i < lines.size(); i++ ) {
 			  float rho = lines[i][0], theta = lines[i][1];
+
+			  std::cout<<rho<<std::endl;
 			  Point pt1, pt2;
 			  double a = cos(theta), b = sin(theta);
 			  double x0 = a*rho, y0 = b*rho;
@@ -140,18 +204,142 @@ void Soccer::processFrame(Frame* in) {
 			  pt1.y = cvRound(y0 + 1000*(a));
 			  pt2.x = cvRound(x0 - 1000*(-b));
 			  pt2.y = cvRound(y0 - 1000*(a));
+			  
 			  line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
+			  if (rho == min) line( cdst, pt1, pt2, Scalar(255,0,255), 1, CV_AA);
+			  if (rho == max) line( cdst, pt1, pt2, Scalar(0,255,0), 1, CV_AA);
 			} 
 
-			log->debugStream() << lines.size();
-			imshow("source", m_actual->data);
-			imshow(to_string(lines.size()), cdst);
+			*/
+
+			// Draw bottom line:
+			float rho = bottomLine[0], theta = bottomLine[1];
+			Point pt1, pt2;
+			double a = cos(theta), b = sin(theta);
+			double x0 = a*rho, y0 = b*rho;
+			pt1.x = cvRound(x0 + 1000*(-b));
+			pt1.y = cvRound(y0 + 1000*(a));
+			pt2.x = cvRound(x0 - 1000*(-b));
+			pt2.y = cvRound(y0 - 1000*(a));
+			line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
+
+			// Draw top line:
+			rho = topLine[0], theta = topLine[1];
+			a = cos(theta), b = sin(theta);
+			x0 = a*rho, y0 = b*rho;
+			pt1.x = cvRound(x0 + 1000*(-b));
+			pt1.y = cvRound(y0 + 1000*(a));
+			pt2.x = cvRound(x0 - 1000*(-b));
+			pt2.y = cvRound(y0 - 1000*(a));
+			line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
+
+			// Draw angled line:
+			rho = angledLine[0], theta = angledLine[1];
+			a = cos(theta), b = sin(theta);
+			x0 = a*rho, y0 = b*rho;
+			pt1.x = cvRound(x0 + 1000*(-b));
+			pt1.y = cvRound(y0 + 1000*(a));
+			pt2.x = cvRound(x0 - 1000*(-b));
+			pt2.y = cvRound(y0 - 1000*(a));
+			line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
+
+			// Next step: find where the angled line meets the two horizontal lines.
+			// the horizontal lines are just y = rho while the angled one is y = m*x + b
+			// I know the y value will be rho of the other line because that one is horizontal
+			// y - b = m*x => x = (rho - b)/m
+
+
+			// Figure out the slope based on points defined above just to avoid any angle trouble
+			double delta_x, delta_y;
+
+			if (pt2.x > pt1.x) {
+				delta_x = pt2.x - pt1.x; 
+				delta_y = pt2.y - pt1.y; 
+			} else {
+				delta_x = pt1.x - pt2.x; 
+				delta_y = pt1.y - pt2.y; 
+			}
+
+			double slope = delta_y / delta_x;
+
+			// Now get y-intercept:
+			// y = mx + b => b = y - mx
+
+			double intercept = pt2.y - (slope*pt2.x); 
+			Point2f c1(topLine[0],(topLine[0] - intercept) / slope), 
+				c2(bottomLine[0],(bottomLine[0] - intercept) / slope);
+
+			c1.y = topLine[0];
+			c1.x = (c1.y - intercept) / slope;
+				
+			c2.y = bottomLine[0];
+			c2.x = (c2.y - intercept) / slope;
+
+			// Based on these two corners and the fact that the vertical centre of the screen is 
+			// the middle of the trapezoid created by the perspective of the rectangle, find where the other corners would be
+			// Note: these are not the real field corners but the pretend corners of the relevant area captured by the camera
+
+			/*
+			c1--------------c4
+			|				|
+			|				|
+			c2--------------c3
+			*/
+			Point2f c3, c4;
+			// This assumes that the camera is orthogonal to the field
+			c3.y = c2.y;
+			c4.y = c1.y;
+
+			double topdiff, bottomdiff;
+			topdiff = centre.x - c1.x;
+			bottomdiff = centre.x - c2.x;
+
+			c4.x = centre.x + topdiff;
+			c3.x = centre.x + bottomdiff;
+
+			// define the destination corners
+			Point2f d1,d2,d3,d4;
+			// these are left in the same  position
+			d1 = c1; 
+			d4 = c4;
+			// warp these
+			d2.x = c1.x; 
+			d2.y = c2.y;
+
+			d3.x = c4.x;
+			d3.y = c3.y;
+
+			// time to get the perspective transformation matrix
+			const Point2f sourcePts[4] = {c1,c4,c3,c2}; // top left then clockwise
+			const Point2f destPts[4] = {d1,d4,d3,d2};
+
+			M = getPerspectiveTransform(sourcePts, destPts);
+
+			/*
+			// Draw the new corners
+			circle(cdst,d1,5,Scalar(0,255,0),3,8,0);
+			circle(cdst,d2,5,Scalar(0,255,0),3,8,0);
+			circle(cdst,d3,5,Scalar(0,255,0),3,8,0);
+			circle(cdst,d4,5,Scalar(0,255,0),3,8,0);
+			*/
+
+			
+			Mat theNewOne = m_actual->data.clone();
+			warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
+
+			//imshow("Source", m_actual->data);
+			//imshow("Warped", theNewOne);
+			//imshow("FIELD CORNER", cdst);
 			
 		}
 
+		Mat newOne = m_actual->data.clone();
+		warpPerspective(m_actual->data, newOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
+
 		if(in->pos_msec < m_mogLearnFrames) { // here's where it trains
 			Mat mask;
-			m_pMOG2->operator()(in->data, mask, 1.0 / m_mogLearnFrames);
+			//m_pMOG2->operator()(in->data, mask, 1.0 / m_mogLearnFrames);
+			m_pMOG2->operator()(newOne, mask, 1.0 / m_mogLearnFrames);
 			return;
 		}
 
@@ -169,7 +357,10 @@ void Soccer::processFrame(Frame* in) {
 	}
 	*/
 
-	processImage(m_actual->data.clone());
+	Mat theNewOne = m_actual->data.clone();
+	warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
+	//processImage(m_actual->data.clone());
+	processImage(theNewOne);
 }
 
 void Soccer::learningEnd() {
@@ -213,7 +404,7 @@ void Soccer::processImage(Mat& input) {
 
 
 void Soccer::Init() {
-	m_record = new VideoRecord("data/filmrole6.avi"); // note: 3 and 4 are of centre field, focus on 2,5,6
+	m_record = new VideoRecord("data/filmrole6.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
 	m_pMOG2 = new BackgroundSubtractorMOG2(200, 16.0, false);
 	m_grass = new ThresholdColor(Scalar(35, 72, 50), Scalar(51, 142, 144));
 	m_learning = true;

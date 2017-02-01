@@ -55,6 +55,7 @@ void App::start() {
 	Init();
 	m_running = true;
 	MainCycle();
+	M = NULL;
 }
 
 bool App::canRun() {

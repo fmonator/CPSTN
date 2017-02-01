@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include <opencv2/imgproc/imgproc.hpp>
 #include "log4cpp.h"
 
 /**
@@ -17,7 +18,8 @@
 class App {
 protected:
 	log4cpp::Category* blog;
-	bool m_running; 
+	bool m_running;
+	cv::Mat M;
 
 	virtual int getLockFPS() = 0;
 	virtual void Init() = 0;
