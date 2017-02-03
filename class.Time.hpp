@@ -1,5 +1,5 @@
 #pragma once
-#include <windows.h>
+//#include <windows.h>
 
 /**
 * Trieda pre urcenie velmy presneho aktualneho casu
@@ -12,10 +12,28 @@
 * With the help of another we can determine the time between two points.
 * It is thread safe.
 */
+
+/* 
+// this is the definition for the problem type:
+typedef union _LARGE_INTEGER {
+  struct {
+    DWORD LowPart;
+    LONG  HighPart;
+  };
+  struct {
+    DWORD LowPart;
+    LONG  HighPart;
+  } u;
+  LONGLONG QuadPart;
+} LARGE_INTEGER, *PLARGE_INTEGER;
+*/
+
+// ok so it looks like the issue here is that some of these data types are windows-specific
 class Time
 {
 private: 
-	LONGLONG m_llQPFTicksPerSec;
+	//LONGLONG m_llQPFTicksPerSec;
+	long long m_llQPFTicksPerSec;
 
 	Time(const Time& a);  
 	Time& operator=(const Time& a); 

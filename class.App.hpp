@@ -1,5 +1,7 @@
 #pragma once
-#include <windows.h>
+//#include <windows.h>
+#define NOMINMAX
+#include <limits>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "log4cpp.h"
 

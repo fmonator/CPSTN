@@ -5,6 +5,8 @@
 #include "class.App.hpp"
 #include "class.Time.hpp"
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 void App::MainCycle() {
 	// Toto je hlavny cyklus aplikacie. (This is the main loop applications.)
@@ -17,15 +19,28 @@ void App::MainCycle() {
 			TranslateMessage( &msg );  // prekladame spravy (Message translation)
 			DispatchMessage( &msg ); // uvolnujeme (release)
 		} else {
-			double time = Time::getInstance().GetAbsolute();
-			bool refreshApp = Run();
-			double deltaTime = time - Time::getInstance().GetAbsolute();;
+
+			// this next little bit is also related to <windows.h> but I'm not sure if this ever happens
+			// UPDATE: it happens constantly
+
+			// UPDATE: (Solution?)
+			// Seksy himself commented out the only use of deltaTime so I'm going to comment out the lines that deal with that
+			// I will also comment out the useless if block since the only line in it is commented out again by Seksy
+
+			
+			//double time = Time::getInstance().GetAbsolute();
+			bool refreshApp = Run(); // this line is actually crucial
+			//double deltaTime = time - Time::getInstance().GetAbsolute();
+
+			/*
 			if(refreshApp) {
 				// nemozme priamo volat UpdateWindow ale toto mozme ..je take iste
 				//(You can directly call UpdateWindow but this can be the same ..is)
-				//Refresh();
+				//Refresh(); // commented out by Seksy
 			}
-			//LimitFPS(deltaTime);
+			*/
+			
+			//LimitFPS(deltaTime); // commented out by Seksy
 		}
 	}
 }
@@ -35,15 +50,24 @@ void App::LimitFPS(double delta) {
 	/*if(blog != NULL) {
 	blog->debugStream() << "delta " << delta << "\n";
 	}*/
-	if(sleepTime < 0) {
+	if(sleepTime < 0) { // This is unlikely to happen: if our app is running too fast hahaha
 		// Ak vypocet snimku klesol pod nase FPS
 		// (If the calculation rate drops below our FPS)
-		Sleep(0); // pomahame windowsu sa vyrovnat s hrou (Windows, help to cope with the game)
+
+		// We could comment out the next line and it would still work?
+
+		//sleep(0); // pomahame windowsu sa vyrovnat s hrou (Windows, help to cope with the game)
+		std::this_thread::sleep_for(std::chrono::milliseconds(0));
+		std::cout<<"WINDOWS SLEEP 0 \n"; // I never saw this get logged
 	} else {
 		/*if(blog != NULL) {
 			blog->debugStream() << "sleep " << sleepTime << "\n";
 		}*/
-		Sleep((DWORD) sleepTime);
+
+		// is this windows-only?
+		//sleep((DWORD) sleepTime);
+		std::this_thread::sleep_for(std::chrono::milliseconds((DWORD) sleepTime));
+		std::cout<<"WINDOWS SLEEP DWORD \n"; // I never saw this get logged either
 	}
 }
 
