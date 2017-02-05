@@ -6,7 +6,7 @@ Drawer::Drawer() {
 	m_roiDraw = false;
 	m_debugDraw = false;
 	m_teamColoring = false;
-	m_drawType = 1;
+	m_drawType = 2;
 	m_roi = new ThresholdColor(Scalar(35, 72, 50), Scalar(51, 142, 144));
 	m_roi->createTrackBars("roiMask");
 
@@ -100,12 +100,12 @@ Scalar Drawer::determineColor(FrameObject* obj) {
 	if(obj->type == REFEREE) {
 		return Scalar(0, 0, 255);
 	}
-	if(m_teamColoring && obj->type == GOAL_KEEPER_A) {
-		return Scalar(255, 255, 255);
+	if(m_teamColoring && obj->type == GOAL_KEEPER_A) { // Should this be GOAL_KEEPER_B ?
+		return Scalar(255, 255, 255); // same color as PLAYER_B
 	}
 	if(obj->type == GOAL_KEEPER_A) {
 		return Scalar(0, 220, 220);
-	}
+	} // above and below this line have different colors though
 	if(obj->type == PLAYER_A) {
 		return Scalar(255, 0, 0);
 	}

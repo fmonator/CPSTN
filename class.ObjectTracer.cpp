@@ -150,7 +150,7 @@ void ObjectTracer::startTrace(FrameObject* obj) {
 	track->points[0] = points;
 	m_footprints.push_back(track);
 	if(log != NULL) {
-		log->debug("Zacinam trakovat.");
+		log->debug("Zacinam trakovat."); // couldn't translate this into anything that remotely made sense
 	}
 	/*
 	Mat debugImage(image.cols, image.rows, CV_8UC1, Scalar(0, 0, 0));

@@ -54,7 +54,8 @@ This software is released under the [MIT License](LICENSE.md).
 - OPENCV_DIR should already be there if you followed the instructions for openCV above (setx -m ...)
 
 ## log4cpp
-- Use 7zip to extract then take everything and add them to the project (should be folders like bcb5, config, doc, ... within a parent called lopg4cpp)
+- Use 7zip to extract then take everything and add them to the project (should be folders like bcb5, config, doc, ... within a parent called log4cpp)
+- You have to build one specific project: log4cpp -> msvc10 -> log4cppLIB
 
 ## VS Project Properties 
 - configuration properties->linker->input->additional dependencies: opencv_calib3d2413d.lib;opencv_contrib2413d.lib;opencv_core2413d.lib;opencv_features2d2413d.lib;opencv_flann2413d.lib;opencv_gpu2413d.lib;opencv_highgui2413d.lib;opencv_imgproc2413d.lib;opencv_legacy2413d.lib;opencv_ml2413d.lib;opencv_nonfree2413d.lib;opencv_objdetect2413d.lib;opencv_ocl2413d.lib;opencv_photo2413d.lib;opencv_stitching2413d.lib;opencv_superres2413d.lib;opencv_ts2413d.lib;opencv_video2413d.lib;opencv_videostab2413d.lib;%(AdditionalDependencies)

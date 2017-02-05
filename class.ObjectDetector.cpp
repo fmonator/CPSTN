@@ -26,7 +26,7 @@ void ObjectDetector::determinePerson(Mat& image, Mat& mask, FrameObject* obj) {
 	BinInfo info = histogram.back();
 	if(info.count < (pixelsInROI * MIN_COLOR_VOLUME)) {
 		obj->type = DetectedObjectType::PERSON; // reprezentacia pixelov je velmi mala
-		// reprezentation of pixels is very small
+		// representation of pixels is very small
 		return;
 	}
 	obj->type = info.type; // prirad typ z farby (Assign the type of paint)

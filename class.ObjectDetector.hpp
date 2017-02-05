@@ -20,7 +20,6 @@ private:
 		BinInfo(DetectedObjectType type, ThresholdColor* color) {
 			this->type = type;
 			this->color = color; 
-			count = 0;
 		}
 
 		bool operator< (const BinInfo &b) const {
@@ -49,10 +48,12 @@ public:
 		VOLUME_BANNER = 0.8f;
 		MIN_COLOR_VOLUME = 0.1;
 
-		histogram.push_back(BinInfo(GOAL_KEEPER_A, new ThresholdColor(Scalar(21, 90, 0), Scalar(52, 190, 255))));
-		histogram.push_back(BinInfo(REFEREE, new ThresholdColor(Scalar(0, 127, 81), Scalar(12, 219, 255))));
-		histogram.push_back(BinInfo(PLAYER_A, new ThresholdColor(Scalar(110, 67, 48), Scalar(141, 150, 158))));
-		histogram.push_back(BinInfo(PLAYER_B, new ThresholdColor(Scalar(0, 0, 245), Scalar(180, 255, 255))));
+		// where is GOAL_KEEPER_B ?
+		// SO it looks like this just takes a range of colors which the object is within
+		histogram.push_back(BinInfo(REFEREE, new ThresholdColor(Scalar(0, 127, 81), Scalar(12, 219, 255)))); // green to blue
+		histogram.push_back(BinInfo(PLAYER_A, new ThresholdColor(Scalar(110, 67, 48), Scalar(141, 150, 158)))); // brown to gray
+		histogram.push_back(BinInfo(PLAYER_B, new ThresholdColor(Scalar(0, 0, 245), Scalar(180, 255, 255)))); // blue to light blue
+		histogram.push_back(BinInfo(GOAL_KEEPER_A, new ThresholdColor(Scalar(21, 90, 0), Scalar(52, 190, 255)))); // green to blue
 	}
 
 	void findObjects(Mat& image, Mat& mask, vector<FrameObject*>& objects);

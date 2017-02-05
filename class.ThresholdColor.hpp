@@ -18,7 +18,7 @@ public:
 		m_max = max;
 	}
 
-	void createTrackBars(const string& win) {
+	void createTrackBars(const string& win) { // hue, saturation, value
 		createTrackbar( "min h", win, &(m_min.val[0]), 180);
 		createTrackbar( "min s", win, &(m_min.val[1]), 255);
 		createTrackbar( "min v", win, &(m_min.val[2]), 255);

@@ -27,7 +27,7 @@ int Soccer::getLockFPS() {
 }
 
 bool Soccer::Run() {
-	int key = cv::waitKey(30);
+	int key = cv::waitKey(15);
 	string str;  
 	str =(char) key;
 	commandArrive(str);
@@ -211,7 +211,7 @@ void Soccer::processFrame(Frame* in) {
 			} 
 
 			*/
-
+			
 			// Draw bottom line:
 			float rho = bottomLine[0], theta = bottomLine[1];
 			Point pt1, pt2;
@@ -223,6 +223,7 @@ void Soccer::processFrame(Frame* in) {
 			pt2.y = cvRound(y0 - 1000*(a));
 			line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
 
+			// Don't comment out these draw blocks, variables are needed for later.
 			// Draw top line:
 			rho = topLine[0], theta = topLine[1];
 			a = cos(theta), b = sin(theta);
@@ -325,7 +326,7 @@ void Soccer::processFrame(Frame* in) {
 
 			
 			Mat theNewOne = m_actual->data.clone();
-			warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
+			warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar()); 
 
 			//imshow("Source", m_actual->data);
 			//imshow("Warped", theNewOne);
@@ -338,7 +339,7 @@ void Soccer::processFrame(Frame* in) {
 
 		if(in->pos_msec < m_mogLearnFrames) { // here's where it trains
 			Mat mask;
-			//m_pMOG2->operator()(in->data, mask, 1.0 / m_mogLearnFrames);
+			//m_pMOG2->operator()(in->data, mask, 1.0 / m_mogLearnFrames); 
 			m_pMOG2->operator()(newOne, mask, 1.0 / m_mogLearnFrames);
 			return;
 		}
@@ -388,7 +389,8 @@ void Soccer::processImage(Mat& input) {
 	// (Earn mask grass over color)
 	Mat grassMask = m_grass->getMask(input);
 	bitwise_not(grassMask, grassMask);
-	//imshow("grassMask",grassMask); 
+	m_grass->createTrackBars("grassMask");
+	imshow("grassMask",grassMask); 
 	
 	// Vypracuj spolocnu masku (Elaborate common mask)
 	Mat finalMask;
@@ -406,7 +408,7 @@ void Soccer::processImage(Mat& input) {
 void Soccer::Init() {
 	m_record = new VideoRecord("data/filmrole6.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
 	m_pMOG2 = new BackgroundSubtractorMOG2(200, 16.0, false);
-	m_grass = new ThresholdColor(Scalar(35, 72, 50), Scalar(51, 142, 144));
+	m_grass = new ThresholdColor(Scalar(26, 18, 8), Scalar(75, 168, 200)); // 35,72,50 to 51, 142, 144
 	m_learning = true;
 	m_mogLearnFrames = 200;
 	m_pause = false;
