@@ -147,8 +147,17 @@ void Soccer::processFrame(Frame* in) {
 			  if ((deg_theta >= 89.5) && (deg_theta <= 90.5) ) lines.push_back(allLines.at(i));
 
 			  // Find the goal line: (should be about 150 or 30 for our data)
-			  if ((deg_theta >= 111) && (deg_theta <= 158) ) angledLine = allLines.at(i);
-			  else if ((deg_theta >= 12) && (deg_theta <= 45) ) angledLine = allLines.at(i);
+			  if ((deg_theta >= 111) && (deg_theta <= 158) ) {
+				  angledLine = allLines.at(i);
+				  teamBAttacking = false;
+				  std::cout << "TEAM A ATTACKING\n";
+				  // assume 'PERSON' is goalie
+			  } else if ((deg_theta >= 12) && (deg_theta <= 45) ) {
+				  angledLine = allLines.at(i);
+				  teamBAttacking = true;
+				  // 'GOAL_KEEPER_A' is goalie
+				  std::cout << "TEAM B ATTACKING\n";
+			  }
 			} 
 
 			// Note: (0,0) is top left of screen
@@ -390,7 +399,7 @@ void Soccer::processImage(Mat& input) {
 	Mat grassMask = m_grass->getMask(input);
 	bitwise_not(grassMask, grassMask);
 	m_grass->createTrackBars("grassMask");
-	imshow("grassMask",grassMask); 
+	//imshow("grassMask",grassMask); 
 	
 	// Vypracuj spolocnu masku (Elaborate common mask)
 	Mat finalMask;
@@ -406,7 +415,7 @@ void Soccer::processImage(Mat& input) {
 
 
 void Soccer::Init() {
-	m_record = new VideoRecord("data/filmrole6.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
+	m_record = new VideoRecord("data/filmrole1.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
 	m_pMOG2 = new BackgroundSubtractorMOG2(200, 16.0, false);
 	m_grass = new ThresholdColor(Scalar(26, 18, 8), Scalar(75, 168, 200)); // 35,72,50 to 51, 142, 144
 	m_learning = true;

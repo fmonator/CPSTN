@@ -22,6 +22,7 @@ protected:
 	log4cpp::Category* blog;
 	bool m_running;
 	cv::Mat M;
+	bool teamBAttacking;
 
 	virtual int getLockFPS() = 0;
 	virtual void Init() = 0;

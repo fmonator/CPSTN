@@ -80,6 +80,7 @@ void App::start() {
 	m_running = true;
 	MainCycle();
 	M = NULL;
+	teamBAttacking = false;
 }
 
 bool App::canRun() {
