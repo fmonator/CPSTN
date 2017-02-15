@@ -221,6 +221,7 @@ void Soccer::processFrame(Frame* in) {
 			pt1.y = cvRound(y0 + 1000*(a));
 			pt2.x = cvRound(x0 - 1000*(-b));
 			pt2.y = cvRound(y0 - 1000*(a));
+			fline_bot = pt1.y;
 			line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
 
 			// Don't comment out these draw blocks, variables are needed for later.
@@ -232,6 +233,7 @@ void Soccer::processFrame(Frame* in) {
 			pt1.y = cvRound(y0 + 1000*(a));
 			pt2.x = cvRound(x0 - 1000*(-b));
 			pt2.y = cvRound(y0 - 1000*(a));
+			fline_top = pt1.y;
 			line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
 
 			// Draw angled line:
@@ -339,8 +341,8 @@ void Soccer::processFrame(Frame* in) {
 
 		if(in->pos_msec < m_mogLearnFrames) { // here's where it trains
 			Mat mask;
-			//m_pMOG2->operator()(in->data, mask, 1.0 / m_mogLearnFrames); 
-			m_pMOG2->operator()(newOne, mask, 1.0 / m_mogLearnFrames);
+			m_pMOG2->operator()(in->data, mask, 1.0 / m_mogLearnFrames); 
+			//m_pMOG2->operator()(newOne, mask, 1.0 / m_mogLearnFrames);
 			return;
 		}
 
@@ -359,9 +361,9 @@ void Soccer::processFrame(Frame* in) {
 	*/
 
 	Mat theNewOne = m_actual->data.clone();
-	warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
-	//processImage(m_actual->data.clone());
-	processImage(theNewOne);
+	//warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
+	processImage(m_actual->data.clone());
+	//processImage(theNewOne);
 }
 
 void Soccer::learningEnd() {
@@ -372,6 +374,65 @@ void Soccer::learningEnd() {
 	m_detector = new ObjectDetector();
 	m_drawer = new Drawer();
 	m_tracer = new ObjectTracer();
+}
+
+vector<FrameObject*> Soccer::filter(vector<FrameObject*>& objects) {
+	vector<FrameObject*> filtered;
+	auto filter_condition = [this](FrameObject* i){
+		bool in_range = i->m_boundary.center.y < fline_bot && i->m_boundary.center.y > fline_top;
+		return i->getSpace() > 200.0f && in_range; 
+	};
+	auto it = copy_if(objects.begin(),objects.end(),back_inserter(filtered),filter_condition);
+
+	return filtered;
+}
+
+FrameObject* findClosest(FrameObject* current, vector<FrameObject*>& old) {
+	FrameObject* closest = NULL;
+	double min_dis = DBL_MAX;
+
+	for(int i = 0; i < old.size(); ++i) {
+		Point diff = old[i]->m_boundary.center - current->m_boundary.center;
+		double dist = (double) sqrt((double) pow(diff.x,2) + (double) pow(diff.y,2));
+		if(dist < min_dis) {
+			min_dis = dist;
+			closest = old[i];
+		}
+	}
+
+	return closest;
+}
+
+void Soccer::mapToLast(vector<FrameObject*>& current) {
+	if(current.size() > last_frame.size()) {
+		last_frame = current;
+		return;
+	}
+	unordered_map<FrameObject*, FrameObject*> obj_map;
+	unordered_map<FrameObject*, pair<FrameObject*, int>> unique_map;
+
+	for(int i = 0; i < last_frame.size(); ++i) {
+		FrameObject* closest = findClosest(last_frame[i], current);
+		if(closest == NULL) {
+			obj_map[last_frame[i]] = last_frame[i];
+		} else {
+			obj_map[last_frame[i]] = closest;
+		}
+	}
+
+	last_frame.clear();
+	for(auto it = obj_map.begin(); it != obj_map.end(); ++it) {
+		FrameObject* curr = it->second;
+
+		if(unique_map.find(curr) == unique_map.end()) {
+			last_frame.push_back(curr);
+			unique_map[curr] = pair<FrameObject*, int>(it->first, last_frame.size()-1);
+		} else {
+			pair<FrameObject*,int> curr_p = unique_map[curr];
+			last_frame[curr_p.second] = curr_p.first;
+			last_frame.push_back(it->first);
+		}
+	}
 }
 
 void Soccer::processImage(Mat& input) {
@@ -390,7 +451,7 @@ void Soccer::processImage(Mat& input) {
 	Mat grassMask = m_grass->getMask(input);
 	bitwise_not(grassMask, grassMask);
 	m_grass->createTrackBars("grassMask");
-	imshow("grassMask",grassMask); 
+	//imshow("grassMask",grassMask); 
 	
 	// Vypracuj spolocnu masku (Elaborate common mask)
 	Mat finalMask;
@@ -401,7 +462,8 @@ void Soccer::processImage(Mat& input) {
 	vector<FrameObject*> objects;
 	m_detector->findObjects(input, finalMask, objects);
 	m_tracer->process(input, objects);
-	m_drawer->draw(input, finalMask, objects);
+	mapToLast(filter(objects));
+	m_drawer->draw(input, finalMask, last_frame);
 }
 
 

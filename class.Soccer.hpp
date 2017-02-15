@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 #include "class.App.hpp"
 #include "log4cpp.h"
 #include "entities.hpp"
@@ -38,6 +39,14 @@ private:
 	ThresholdColor* m_grass;
 
 	ObjectTracer* m_tracer;
+
+	// Field lines
+	int fline_top;
+	int fline_bot;
+
+	vector<FrameObject*> last_frame;
+	vector<FrameObject*> filter(vector<FrameObject*>&);
+	void mapToLast(vector<FrameObject*>&);
 
 protected:
 	// Inicializacia programu (program initialization)
