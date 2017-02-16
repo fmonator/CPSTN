@@ -158,6 +158,8 @@ void Soccer::processFrame(Frame* in) {
 				  // 'GOAL_KEEPER_A' is goalie
 				  std::cout << "TEAM B ATTACKING\n";
 			  }
+
+			  goalLine.teamBAttacking = teamBAttacking;
 			} 
 
 			// Note: (0,0) is top left of screen
@@ -270,20 +272,20 @@ void Soccer::processFrame(Frame* in) {
 				delta_y = pt1.y - pt2.y; 
 			}
 
-			double slope = delta_y / delta_x;
+			goalLine.slope = delta_y / delta_x;
 
 			// Now get y-intercept:
 			// y = mx + b => b = y - mx
 
-			double intercept = pt2.y - (slope*pt2.x); 
-			Point2f c1(topLine[0],(topLine[0] - intercept) / slope), 
-				c2(bottomLine[0],(bottomLine[0] - intercept) / slope);
+			goalLine.intercept = pt2.y - (goalLine.slope*pt2.x); 
+			Point2f c1(topLine[0],(topLine[0] - goalLine.intercept) / goalLine.slope), 
+				c2(bottomLine[0],(bottomLine[0] - goalLine.intercept) / goalLine.slope);
 
 			c1.y = topLine[0];
-			c1.x = (c1.y - intercept) / slope;
+			c1.x = (c1.y - goalLine.intercept) / goalLine.slope;
 				
 			c2.y = bottomLine[0];
-			c2.x = (c2.y - intercept) / slope;
+			c2.x = (c2.y - goalLine.intercept) / goalLine.slope;
 
 			// Based on these two corners and the fact that the vertical centre of the screen is 
 			// the middle of the trapezoid created by the perspective of the rectangle, find where the other corners would be

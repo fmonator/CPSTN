@@ -12,7 +12,34 @@
 class Soccer : public App
 {
 private:
+
+	struct SlopeLine { // Given in y = slope*x + intercept form, rearranged for x = (y - intercept)/slope
+						// put in a y-value to find the field limit in x
+	public: 
+		double slope, intercept;
+		bool teamBAttacking;
+
+		bool isThisTooFar(Point p) { // takes in a point (up to you to decide which point on object)
+			int x_limit = (p.y - intercept)/slope;
+
+			if (teamBAttacking == false) // i.e. goalLine is on the right side of the image
+				return (p.x > x_limit);
+			else						// i.e. goalLine is on the left side of the image
+				return (p.x < x_limit);
+		}
+
+		bool isThisTooFar(Point2f p) { // takes in a point (up to you to decide which point on object) 
+			int x_limit = (p.y - intercept)/slope;
+
+			if (teamBAttacking == false) // i.e. goalLine is on the right side of the image
+				return (p.x > x_limit);
+			else						// i.e. goalLine is on the left side of the image
+				return (p.x < x_limit);
+		}
+	};
+
 	// Atributy aplikacie (application attributes)
+	SlopeLine goalLine;
 	log4cpp::Category* log;
 	static Size WIN_SIZE;
 	void commandArrive(string& str);
