@@ -67,4 +67,6 @@ void ObjectDetector::findObjects(Mat& image, Mat& mask, vector<FrameObject*>& ob
 		objects.push_back(obj);
 		determineObject(image, mask, obj);
 	}
+
+	
 }

@@ -6,7 +6,7 @@
 #include <opencv2/video/background_segm.hpp>
 #include "class.ThresholdColor.hpp"
 #include "class.ObjectDetector.hpp"
-#include "class.Drawer.hpp"
+//#include "class.Drawer.hpp"
 #include "class.ObjectTracer.hpp"
 
 class Soccer : public App
@@ -38,6 +38,7 @@ private:
 	ThresholdColor* m_grass;
 
 	ObjectTracer* m_tracer;
+
 
 protected:
 	// Inicializacia programu (program initialization)

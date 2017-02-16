@@ -323,7 +323,7 @@ void Soccer::processFrame(Frame* in) {
 			const Point2f sourcePts[4] = {c1,c4,c3,c2}; // top left then clockwise
 			const Point2f destPts[4] = {d1,d4,d3,d2};
 
-			M = getPerspectiveTransform(sourcePts, destPts);
+			M = getPerspectiveTransform(sourcePts, destPts); // transformation
 
 			/*
 			// Draw the new corners
@@ -334,8 +334,8 @@ void Soccer::processFrame(Frame* in) {
 			*/
 
 			
-			Mat theNewOne = m_actual->data.clone();
-			warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar()); 
+			//Mat theNewOne = m_actual->data.clone();
+			//warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar()); 
 
 			//imshow("Source", m_actual->data);
 			//imshow("Warped", theNewOne);
@@ -343,13 +343,13 @@ void Soccer::processFrame(Frame* in) {
 			
 		}
 
-		Mat newOne = m_actual->data.clone();
-		warpPerspective(m_actual->data, newOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
+		//Mat newOne = m_actual->data.clone();
+		//warpPerspective(m_actual->data, newOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
 
 		if(in->pos_msec < m_mogLearnFrames) { // here's where it trains
 			Mat mask;
-			//m_pMOG2->operator()(in->data, mask, 1.0 / m_mogLearnFrames); 
-			m_pMOG2->operator()(newOne, mask, 1.0 / m_mogLearnFrames);
+			m_pMOG2->operator()(in->data, mask, 1.0 / m_mogLearnFrames); 
+			//m_pMOG2->operator()(newOne, mask, 1.0 / m_mogLearnFrames);
 			return;
 		}
 
@@ -367,10 +367,10 @@ void Soccer::processFrame(Frame* in) {
 	}
 	*/
 
-	Mat theNewOne = m_actual->data.clone();
-	warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
-	//processImage(m_actual->data.clone());
-	processImage(theNewOne);
+	//Mat theNewOne = m_actual->data.clone();
+	//warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
+	processImage(m_actual->data.clone());
+	//processImage(theNewOne);
 }
 
 void Soccer::learningEnd() {
@@ -437,6 +437,7 @@ void Soccer::Init() {
 Size FrameObject::WIN_SIZE = Size(640, 480);  //Size(1920, 1080);
 Size Soccer::WIN_SIZE = Size(640, 480); 
 Size Drawer::WIN_SIZE = Size(640, 480); 
+Size ObjectDetector::WIN_SIZE = Size(640, 480); 
 
 // TODO: - skupina, ked sa dotykaju rukou tak pouzijem opening a zistim, ci tam nebude torso hraca 2x, 3x
 // TODO: - torso zistim extra eroziou, kde ruky a hlavu odstranim

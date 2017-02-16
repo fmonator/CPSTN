@@ -3,6 +3,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include "entities.hpp"
+#include "class.Drawer.hpp"
 #include "class.ThresholdColor.hpp"
 #include "util.h"
 
@@ -11,6 +12,7 @@ using namespace std;
 
 class ObjectDetector {
 private:
+	static Size WIN_SIZE;
 	class BinInfo {
 	public:
 		ThresholdColor* color;

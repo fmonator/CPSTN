@@ -21,8 +21,8 @@ class App {
 protected:
 	log4cpp::Category* blog;
 	bool m_running;
-	cv::Mat M;
-	bool teamBAttacking;
+	cv::Mat M; // perspective warp matrix
+	bool teamBAttacking; // is teamBAttacking or not? Used for offside comparisons
 
 	virtual int getLockFPS() = 0;
 	virtual void Init() = 0;
