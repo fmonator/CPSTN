@@ -1,13 +1,13 @@
 # Detection of objects in soccer
 
-~Lukas Sekerak's school project in Computer vision .~
+<del>Lukas Sekerak's school project in Computer vision</del>
 Fourth Year Software Engineering Capstone Project: Soccer offside detection based on Computer Vision.
 
 ### Project idea
 
-~Try detect objects (players, soccer ball, referees, goal keeper) in soccer match.~
-~Detect their position, movement and show picked object in ROI area.~
-~More inforamtions in a [documentation](doc/documentation.pdf) or [presentation](doc/presentation.pptx).~
+<del>Try detect objects (players, soccer ball, referees, goal keeper) in soccer match.</del>
+<del>Detect their position, movement and show picked object in ROI area.</del>
+<del>More inforamtions in a [documentation](doc/documentation.pdf) or [presentation](doc/presentation.pptx).</del>
 Using Lukas Sekerak's project as a base, we optimized player detection and detected field lines to find a matrix to transform perspective in order to compare positions in an attempt to find offsides.
 
 ### Requirements
@@ -49,5 +49,5 @@ in the Proceeding of the 6th IEEE International Conference on Advanced Video and
 This software is released under the [MIT License](LICENSE.md).
 
 ### Credits
-- ~Ing. Wanda Benešová, PhD. - Supervisor ~
+- <del>Ing. Wanda Benešová, PhD. - Supervisor</del>
 
