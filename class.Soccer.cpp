@@ -382,7 +382,7 @@ void Soccer::processImage(Mat& input) {
 void Soccer::Init() {
 	m_record = new VideoRecord("data/filmrole1.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
 	m_pMOG2 = new BackgroundSubtractorMOG2(200, 16.0, false);
-	m_grass = new ThresholdColor(Scalar(26, 18, 8), Scalar(75, 168, 200)); // 35,72,50 to 51, 142, 144
+	m_grass = new ThresholdColor(Scalar(26, 18, 8), Scalar(75, 168, 200)); // 35,72,50 to 51, 142, 144 is what Seksy had
 	m_learning = true;
 	m_mogLearnFrames = 200;
 	m_pause = false;
