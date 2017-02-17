@@ -97,39 +97,17 @@ void Soccer::loadNextFrame() {
 	}
 }
 
-void Soccer::processFrame(Frame* in) {
-	// Predspracuj vstup podla potreby, vypocitaj fgMasku
-	// (Preprocess input as appropriate, calculate mask)
-	resize(m_actual->data, m_actual->data, WIN_SIZE);
-
-	// Learning MOG algorithm (background subtraction)
-	if(m_learning) {
-		// look at first frame and check lines
-		if (in->pos_msec == 1) { // starts at 1 not at 0.
-			// this assumes the camera is static and that gameplay boundary lines are visible. 
+Mat Soccer::getWarpMatrix() {
+	// this assumes the camera is static and that gameplay boundary lines are visible. 
 			// In the future we would have to redo this whenever the camera moved
 			log->debugStream() << "Looking at first frame for camera angle and field analysis.";
 			
 			Mat dst, cdst;
-			/*
-			// I'm thinking of preprocessing the image: lower contrast may allow differences in green to be detected
-			// higher contrast may get rid of some of the noise
-			double gain = 0.5; // contrast [1.0,3.0] (as it goes up, you get more random lines but not the ones I want)
-			int bias = 0; // brightness [0,100]
-
-			for( int y = 0; y < m_actual->data.rows; y++ ){ 
-				for( int x = 0; x < m_actual->data.cols; x++ ){ 
-					for( int c = 0; c < 3; c++ ) { 
-						m_actual->data.at<Vec3b>(y,x)[c] = saturate_cast<uchar>( gain*( m_actual->data.at<Vec3b>(y,x)[c] ) + bias ); 
-					}
-				}
-			}
-			*/
 
 			Canny(m_actual->data, dst, 50, 200, 3);
 			cvtColor(dst, cdst, CV_GRAY2BGR);
 			vector<Vec2f> allLines;
-			//HoughLines(dst, lines, 1, CV_PI/180, 150, 0, 0 ); // original
+
 			HoughLines(dst, allLines, 2, CV_PI/180, 175, 0, 0 );
 
 			Vec2f angledLine, topLine, bottomLine;
@@ -173,10 +151,7 @@ void Soccer::processFrame(Frame* in) {
 			centre.y = WIN_SIZE.height/2;
 			centre.x = WIN_SIZE.width/2;
 
-			//std::cout<<"The centre of the screen is at ("<<centre.x<<','<<centre.y<<").\n";
-
 			// find the relevant lines:
-
 			// Find bottom line
 			int min = WIN_SIZE.height;
 			for( size_t i = 0; i < lines.size(); i++ ) {
@@ -202,26 +177,6 @@ void Soccer::processFrame(Frame* in) {
 				  topLine = lines.at(i);
 			  }
 			}
-
-			/*
-			for( size_t i = 0; i < lines.size(); i++ ) {
-			  float rho = lines[i][0], theta = lines[i][1];
-
-			  std::cout<<rho<<std::endl;
-			  Point pt1, pt2;
-			  double a = cos(theta), b = sin(theta);
-			  double x0 = a*rho, y0 = b*rho;
-			  pt1.x = cvRound(x0 + 1000*(-b));
-			  pt1.y = cvRound(y0 + 1000*(a));
-			  pt2.x = cvRound(x0 - 1000*(-b));
-			  pt2.y = cvRound(y0 - 1000*(a));
-			  
-			  line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
-			  if (rho == min) line( cdst, pt1, pt2, Scalar(255,0,255), 1, CV_AA);
-			  if (rho == max) line( cdst, pt1, pt2, Scalar(0,255,0), 1, CV_AA);
-			} 
-
-			*/
 			
 			// Draw bottom line:
 			float rho = bottomLine[0], theta = bottomLine[1];
@@ -260,6 +215,7 @@ void Soccer::processFrame(Frame* in) {
 			// I know the y value will be rho of the other line because that one is horizontal
 			// y - b = m*x => x = (rho - b)/m
 
+			// The slope and intercept will be used to define goalLine struct
 
 			// Figure out the slope based on points defined above just to avoid any angle trouble
 			double delta_x, delta_y;
@@ -292,10 +248,10 @@ void Soccer::processFrame(Frame* in) {
 			// Note: these are not the real field corners but the pretend corners of the relevant area captured by the camera
 
 			/*
-			c1--------------c4
-			|				|
-			|				|
-			c2--------------c3
+			         c1--------------c4				c1--------------c4
+					/				   \			|				 |
+				   /					\	  =>	|				 |
+			      c2--------------------c3			c2--------------c3
 			*/
 			Point2f c3, c4;
 			// This assumes that the camera is orthogonal to the field
@@ -325,24 +281,31 @@ void Soccer::processFrame(Frame* in) {
 			const Point2f sourcePts[4] = {c1,c4,c3,c2}; // top left then clockwise
 			const Point2f destPts[4] = {d1,d4,d3,d2};
 
-			M = getPerspectiveTransform(sourcePts, destPts); // transformation
+			Mat warpMatrix = getPerspectiveTransform(sourcePts, destPts); // transformation matrix 
 
+			// uncomment these 5 lines to see the original frame, the detected corner, and the application of the warp matrix
 			/*
-			// Draw the new corners
-			circle(cdst,d1,5,Scalar(0,255,0),3,8,0);
-			circle(cdst,d2,5,Scalar(0,255,0),3,8,0);
-			circle(cdst,d3,5,Scalar(0,255,0),3,8,0);
-			circle(cdst,d4,5,Scalar(0,255,0),3,8,0);
+			Mat theNewOne = m_actual->data.clone();
+			warpPerspective(m_actual->data, theNewOne, warpMatrix, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
+			imshow("Source", m_actual->data);
+			imshow("FIELD CORNER", cdst);
+			imshow("Warped", theNewOne);
 			*/
 
-			
-			//Mat theNewOne = m_actual->data.clone();
-			//warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar()); 
+			return warpMatrix;
+}
 
-			//imshow("Source", m_actual->data);
-			//imshow("Warped", theNewOne);
-			//imshow("FIELD CORNER", cdst);
+void Soccer::processFrame(Frame* in) {
+	// Predspracuj vstup podla potreby, vypocitaj fgMasku
+	// (Preprocess input as appropriate, calculate mask)
+	resize(m_actual->data, m_actual->data, WIN_SIZE);
+
+	// Learning MOG algorithm (background subtraction)
+	if(m_learning) {
+		// look at first frame and check lines
+		if (in->pos_msec == 1) { // starts at 1 not at 0.
 			
+			M = getWarpMatrix();
 		}
 
 		//Mat newOne = m_actual->data.clone();

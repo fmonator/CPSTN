@@ -62,6 +62,7 @@ private:
 	ObjectDetector* m_detector;
 	Drawer* m_drawer;
 	void processImage(Mat& input);
+	Mat getWarpMatrix();
 	ThresholdColor* m_grass;
 
 	ObjectTracer* m_tracer;
