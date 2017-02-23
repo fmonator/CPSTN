@@ -62,7 +62,8 @@ enum DetectedObjectType {
 	PLAYER_A, 
 	PLAYER_B, 
 	REFEREE,
-	BALL
+	BALL,
+	CONFUSED
 };
 
 inline ostream& operator<< (ostream& out, DetectedObjectType& type) {
@@ -90,12 +91,14 @@ public:
 	vector<Point> m_countour;
 	DetectedObjectType type;
 	FrameObject* m_previous;
+	int count;
 
 	FrameObject(vector<Point> contour, RotatedRect rec) {
 		m_countour = contour;
 		m_boundary = rec;
 		type = DetectedObjectType::UNKNOWN;
 		m_previous = NULL;
+		count = 0;
 	}
 
 	bool hasHistory() {

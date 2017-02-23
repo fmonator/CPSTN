@@ -9,6 +9,10 @@ Soccer::Soccer()
 	if(log != NULL) {
 		log->debug("Starting Soccer");
 	}
+
+	// Field lines defaults
+	fline_bot = INT_MAX;
+	fline_top = 0;
 }
 
 Soccer::~Soccer() {
@@ -93,7 +97,7 @@ void Soccer::loadNextFrame() {
 		m_actual = m_record->readNext();
 	}
 	if(log != NULL) {
-		log->debugStream() << "Image: " << m_actual->pos_msec;
+		//log->debugStream() << "Image: " << m_actual->pos_msec;
 	}
 }
 
@@ -376,65 +380,6 @@ void Soccer::learningEnd() {
 	m_tracer = new ObjectTracer();
 }
 
-vector<FrameObject*> Soccer::filter(vector<FrameObject*>& objects) {
-	vector<FrameObject*> filtered;
-	auto filter_condition = [this](FrameObject* i){
-		bool in_range = i->m_boundary.center.y < fline_bot && i->m_boundary.center.y > fline_top;
-		return i->getSpace() > 200.0f && in_range; 
-	};
-	auto it = copy_if(objects.begin(),objects.end(),back_inserter(filtered),filter_condition);
-
-	return filtered;
-}
-
-FrameObject* findClosest(FrameObject* current, vector<FrameObject*>& old) {
-	FrameObject* closest = NULL;
-	double min_dis = DBL_MAX;
-
-	for(int i = 0; i < old.size(); ++i) {
-		Point diff = old[i]->m_boundary.center - current->m_boundary.center;
-		double dist = (double) sqrt((double) pow(diff.x,2) + (double) pow(diff.y,2));
-		if(dist < min_dis) {
-			min_dis = dist;
-			closest = old[i];
-		}
-	}
-
-	return closest;
-}
-
-void Soccer::mapToLast(vector<FrameObject*>& current) {
-	if(current.size() > last_frame.size()) {
-		last_frame = current;
-		return;
-	}
-	unordered_map<FrameObject*, FrameObject*> obj_map;
-	unordered_map<FrameObject*, pair<FrameObject*, int>> unique_map;
-
-	for(int i = 0; i < last_frame.size(); ++i) {
-		FrameObject* closest = findClosest(last_frame[i], current);
-		if(closest == NULL) {
-			obj_map[last_frame[i]] = last_frame[i];
-		} else {
-			obj_map[last_frame[i]] = closest;
-		}
-	}
-
-	last_frame.clear();
-	for(auto it = obj_map.begin(); it != obj_map.end(); ++it) {
-		FrameObject* curr = it->second;
-
-		if(unique_map.find(curr) == unique_map.end()) {
-			last_frame.push_back(curr);
-			unique_map[curr] = pair<FrameObject*, int>(it->first, last_frame.size()-1);
-		} else {
-			pair<FrameObject*,int> curr_p = unique_map[curr];
-			last_frame[curr_p.second] = curr_p.first;
-			last_frame.push_back(it->first);
-		}
-	}
-}
-
 void Soccer::processImage(Mat& input) {
 	// Ziskaj masku pohybu cez MOG algoritmus
 	// (Earn mask movement through MOG algorithm)
@@ -451,7 +396,7 @@ void Soccer::processImage(Mat& input) {
 	Mat grassMask = m_grass->getMask(input);
 	bitwise_not(grassMask, grassMask);
 	m_grass->createTrackBars("grassMask");
-	//imshow("grassMask",grassMask); 
+	imshow("grassMask",grassMask); 
 	
 	// Vypracuj spolocnu masku (Elaborate common mask)
 	Mat finalMask;
@@ -459,16 +404,15 @@ void Soccer::processImage(Mat& input) {
 	//imshow("finalMask", finalMask); 
 	
 	// Najdi objekty (Find objects)
-	vector<FrameObject*> objects;
-	m_detector->findObjects(input, finalMask, objects);
+	vector<FrameObject*> objects, teama, teamb;
+	m_detector->findObjects(input, finalMask, objects, teama, teamb, fline_top,fline_bot);
 	m_tracer->process(input, objects);
-	mapToLast(filter(objects));
-	m_drawer->draw(input, finalMask, last_frame);
+	m_drawer->draw(input, finalMask, objects);
 }
 
 
 void Soccer::Init() {
-	m_record = new VideoRecord("data/filmrole6.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
+	m_record = new VideoRecord("data/filmrole5.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
 	m_pMOG2 = new BackgroundSubtractorMOG2(200, 16.0, false);
 	m_grass = new ThresholdColor(Scalar(26, 18, 8), Scalar(75, 168, 200)); // 35,72,50 to 51, 142, 144
 	m_learning = true;

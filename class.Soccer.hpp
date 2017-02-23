@@ -44,10 +44,6 @@ private:
 	int fline_top;
 	int fline_bot;
 
-	vector<FrameObject*> last_frame;
-	vector<FrameObject*> filter(vector<FrameObject*>&);
-	void mapToLast(vector<FrameObject*>&);
-
 protected:
 	// Inicializacia programu (program initialization)
 	virtual void Init();

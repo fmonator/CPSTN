@@ -133,3 +133,7 @@ double euclideanDist(Point p, Point q) {
     Point diff = p - q;
     return cv::sqrt(diff.x*diff.x + diff.y*diff.y);
 }
+
+double mapRange(double x1, double x2, double y1, double y2, double ix) {
+	return ((y2 - y1) * (ix - x1) / (x2 - x1)) + y1;
+}
