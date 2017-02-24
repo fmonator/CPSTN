@@ -43,6 +43,7 @@ void Drawer::previousROI() {
 	m_roi_index--;
 	log->debugStream() << "previous roi ";
 }
+
 void Drawer::draw(Mat& image, Mat& mask, vector<FrameObject*>& objs) {
 	if(m_roiDraw) {
 		drawROI(image, mask, objs);
@@ -54,6 +55,8 @@ void Drawer::draw(Mat& image, Mat& mask, vector<FrameObject*>& objs) {
 		if(!isVisible(obj)) {
 			continue;
 		}
+
+		m_drawType = 5;
 		Scalar color = determineColor(obj); 
 		if(m_drawType == 0) {
 			ellipse(image, objs.at(i)->m_boundary, color, 1);
@@ -63,16 +66,24 @@ void Drawer::draw(Mat& image, Mat& mask, vector<FrameObject*>& objs) {
 			putText(image, os.str(), obj->m_boundary.center, 0, 0.2, color, 1, 8);
 		} else if(m_drawType == 3) {
 			ostringstream os;
-			os << obj->countHistory();
-			putText(image, os.str(), obj->m_boundary.center, 0, 0.4, Scalar(255, 255, 255), 1, 8);
+			os << obj->count;
+			putText(image, os.str(), obj->m_boundary.center, 0, 0.8, Scalar(0, 0, 0), 1, 8);
 		} else if(m_drawType == 4) {
 			ostringstream os;
 			os << obj->distanceCovered();
 			putText(image, os.str(), obj->m_boundary.center, 0, 0.8, Scalar(255, 255, 255), 1, 8);
 		} else if(m_drawType == 1) {
 			drawPoints(image, objs.at(i)->m_countour, color);
+		} else if(m_drawType == 5) {
+			ostringstream os;
+			os << obj->type;
+			string label = "(" + to_string(obj->m_boundary.boundingRect().area()) + ", " + to_string((float)obj->m_boundary.boundingRect().width/obj->m_boundary.boundingRect().height);
+			if(obj->type == CONFUSED) putText(image, "CONFUSED", obj->m_boundary.center, 0, 0.8, color, 1, 8);
+			//ellipse(image, objs.at(i)->m_boundary, color, 1);
+			rectangle(image,obj->m_boundary.boundingRect(),color);
 		}
 	}
+	rectangle(image, Point(0,0.1*480),Point(640,0.92*480),Scalar(255,0,0));
 	imshow("Output", image);
 }
 
@@ -111,6 +122,9 @@ Scalar Drawer::determineColor(FrameObject* obj) {
 	}
 	if(obj->type == PLAYER_B) {
 		return Scalar(255, 255, 255);
+	}
+	if(obj->type == CONFUSED) {
+		return Scalar(0,0,0);
 	}
 	return Scalar(0, 0, 0);
 }

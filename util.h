@@ -15,3 +15,4 @@ bool containsPixel(vector<Point2f>& a, Point2f& b);
 int intersection(vector<Point2f>& a, vector<Point2f>&b);
 bool comparePoint2f(Point2f& a, Point2f& b);
 double euclideanDist(Point p, Point q);
+double mapRange(double x1, double x2, double y1, double y2, double ix);

@@ -12,6 +12,10 @@ Soccer::Soccer()
 	if(log != NULL) {
 		log->debug("Starting Soccer");
 	}
+
+	// Field lines defaults
+	fline_bot = INT_MAX;
+	fline_top = 0;
 }
 
 Soccer::~Soccer() {
@@ -96,7 +100,7 @@ void Soccer::loadNextFrame() {
 		m_actual = m_record->readNext();
 	}
 	if(log != NULL) {
-		log->debugStream() << "Image: " << m_actual->pos_msec;
+		//log->debugStream() << "Image: " << m_actual->pos_msec;
 	}
 }
 
@@ -188,6 +192,7 @@ Mat Soccer::getWarpMatrix() {
 			pt1.y = cvRound(y0 + 1000*(a));
 			pt2.x = cvRound(x0 - 1000*(-b));
 			pt2.y = cvRound(y0 - 1000*(a));
+			fline_bot = pt1.y;
 			line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
 
 			// Don't comment out these draw blocks, variables are needed for later.
@@ -199,6 +204,7 @@ Mat Soccer::getWarpMatrix() {
 			pt1.y = cvRound(y0 + 1000*(a));
 			pt2.x = cvRound(x0 - 1000*(-b));
 			pt2.y = cvRound(y0 - 1000*(a));
+			fline_top = pt1.y;
 			line( cdst, pt1, pt2, Scalar(0,0,255), 1, CV_AA);
 
 			// Draw angled line:
@@ -384,14 +390,14 @@ void Soccer::processImage(Mat& input) {
 	//imshow("finalMask", finalMask); 
 	
 	// Najdi objekty (Find objects)
-	vector<FrameObject*> objects;
-	m_detector->findObjects(input, finalMask, objects);
+	vector<FrameObject*> objects, teama, teamb;
+	m_detector->findObjects(input, finalMask, objects, teama, teamb, fline_top,fline_bot);
 	m_tracer->process(input, objects);
 	m_drawer->draw(input, finalMask, objects);
 }
 
 void Soccer::Init() {
-	m_record = new VideoRecord("data/filmrole1.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
+	m_record = new VideoRecord("data/filmrole5.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
 	m_pMOG2 = new BackgroundSubtractorMOG2(200, 16.0, false);
 	m_grass = new ThresholdColor(Scalar(26, 18, 8), Scalar(75, 168, 200)); // 35,72,50 to 51, 142, 144 is what Seksy had
 	m_learning = true;

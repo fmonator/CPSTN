@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 #include "class.App.hpp"
 #include "log4cpp.h"
 #include "entities.hpp"
@@ -83,6 +84,9 @@ private:
 
 	ObjectTracer* m_tracer;
 
+	// Field lines
+	int fline_top;
+	int fline_bot;
 
 protected:
 	// Inicializacia programu (program initialization)
@@ -94,7 +98,6 @@ protected:
 	virtual int getLockFPS();
 
 public:
-
 	Soccer();
 	~Soccer();
 };
