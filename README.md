@@ -28,7 +28,7 @@ in the Proceeding of the 6th IEEE International Conference on Advanced Video and
 - Visual Studio 2012 update 5
 - Visual Studio Premium 2012 (use the web installer from we.onthehub)
 - log4cpp 1.1.1 -> https://sourceforge.net/projects/log4cpp/files/log4cpp-1.1.x%20%28new%29/log4cpp-1.1/
-- POCO 1.7.8 (basic, no dependencies) -> 
+- POCO 1.7.8 (basic edition, no dependencies) -> https://pocoproject.org/download/index.html
 
 ### Your machine 
 - If you haven't already, look at this: http://docs.opencv.org/2.4/doc/tutorials/introduction/windows_install/windows_install.html#windowssetpathandenviromentvariable
