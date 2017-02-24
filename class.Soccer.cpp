@@ -2,6 +2,9 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include "util.h"
 
+bool Soccer::teamBAttacking; // static intitialization
+Mat Soccer::warpMatrix; // static initialization
+
 Soccer::Soccer() 
 {
 	// Nacitaj vsetky casti Soccera (Load all parts Soccer)
@@ -136,8 +139,6 @@ Mat Soccer::getWarpMatrix() {
 				  // 'GOAL_KEEPER_A' is goalie
 				  std::cout << "TEAM B ATTACKING\n";
 			  }
-
-			  goalLine.teamBAttacking = teamBAttacking;
 			} 
 
 			// Note: (0,0) is top left of screen
@@ -281,7 +282,7 @@ Mat Soccer::getWarpMatrix() {
 			const Point2f sourcePts[4] = {c1,c4,c3,c2}; // top left then clockwise
 			const Point2f destPts[4] = {d1,d4,d3,d2};
 
-			Mat warpMatrix = getPerspectiveTransform(sourcePts, destPts); // transformation matrix 
+			Mat m = getPerspectiveTransform(sourcePts, destPts); // transformation matrix 
 
 			// uncomment these 5 lines to see the original frame, the detected corner, and the application of the warp matrix
 			/*
@@ -292,7 +293,7 @@ Mat Soccer::getWarpMatrix() {
 			imshow("Warped", theNewOne);
 			*/
 
-			return warpMatrix;
+			return m;
 }
 
 void Soccer::processFrame(Frame* in) {
@@ -305,7 +306,7 @@ void Soccer::processFrame(Frame* in) {
 		// look at first frame and check lines
 		if (in->pos_msec == 1) { // starts at 1 not at 0.
 			
-			M = getWarpMatrix();
+			warpMatrix = getWarpMatrix();
 		}
 
 		//Mat newOne = m_actual->data.clone();
@@ -325,12 +326,23 @@ void Soccer::processFrame(Frame* in) {
 		return;
 	} 
 	
-	/* // No idea why Seksy had this
+	 // No idea why Seksy had this but I used it to test the post 
 	// Pauza pre konkretny snimok (Pause for specific frames)
-	if(in->pos_msec == 355) {
-		m_pause = true;
+	/*
+	if(in->pos_msec == 10) {
+		
+		while (true) {
+			bool pass = notifyRef();
+			if (pass) {
+				std::cout<<"SUCCESS\n";
+				break;
+			} else
+				std::cout<<"FAILURE\n";
+		}
+		
 	}
 	*/
+	
 
 	//Mat theNewOne = m_actual->data.clone();
 	//warpPerspective(m_actual->data, theNewOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
@@ -378,7 +390,6 @@ void Soccer::processImage(Mat& input) {
 	m_drawer->draw(input, finalMask, objects);
 }
 
-
 void Soccer::Init() {
 	m_record = new VideoRecord("data/filmrole1.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
 	m_pMOG2 = new BackgroundSubtractorMOG2(200, 16.0, false);
@@ -399,10 +410,47 @@ void Soccer::Init() {
 	m_grass->createTrackBars("grassMask");
 }
 
+bool Soccer::notifyRef() {
+	Poco::URI uri("http://ouda-server.herokuapp.com/notifyreferee");
+    std::string path(uri.getPathAndQuery());
+    if (path.empty()) path = "/";
+
+	Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
+    Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, path, Poco::Net::HTTPMessage::HTTP_1_1);
+    Poco::Net::HTTPResponse response;
+
+	session.setKeepAlive(true);
+	response.setKeepAlive(true);
+
+	Poco::JSON::Object obj;
+    obj.set("team", "A");
+	std::stringstream ss;
+	obj.stringify(ss);
+	request.setKeepAlive(true);
+	request.setContentLength(ss.str().size());
+	request.setContentType("application/json"); 
+
+	response.setStatus(Poco::Net::HTTPResponse::HTTP_FORBIDDEN); // just doing this because OK is the default.
+
+	std::ostream& o = session.sendRequest(request);
+	obj.stringify(o);
+	std::istream& i = session.receiveResponse(response);
+
+    std::cout << response.getStatus() << " " << response.getReason() << std::endl;
+    if (response.getStatus() == Poco::Net::HTTPResponse::HTTP_OK)
+    {
+		std::cout<<response.getContentType()<<std::endl;
+		std::cout << i.rdbuf();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 Size FrameObject::WIN_SIZE = Size(640, 480);  //Size(1920, 1080);
 Size Soccer::WIN_SIZE = Size(640, 480); 
-Size Drawer::WIN_SIZE = Size(640, 480); 
-Size ObjectDetector::WIN_SIZE = Size(640, 480); 
 
 // TODO: - skupina, ked sa dotykaju rukou tak pouzijem opening a zistim, ci tam nebude torso hraca 2x, 3x
 // TODO: - torso zistim extra eroziou, kde ruky a hlavu odstranim

@@ -41,8 +41,11 @@ private:
 	void determinePerson(Mat& image, Mat& mask, FrameObject* obj);
 	void determineObject(Mat& image, Mat& mask, FrameObject* obj);
 	void computeHistogram(Mat& ROI);
+
 public:
+
 	ObjectDetector() {
+		
 		MIN_PIXELS_IN_CONTOUR = 15;// 
 		MIN_AREA = 20; // 868 velksot hraca (size hraca)
 		MAX_AREA = 5000;
@@ -50,8 +53,6 @@ public:
 		VOLUME_BANNER = 0.8f;
 		MIN_COLOR_VOLUME = 0.1;
 
-		// where is GOAL_KEEPER_B ?
-		// SO it looks like this just takes a range of colors which the object is within
 		histogram.push_back(BinInfo(REFEREE, new ThresholdColor(Scalar(0, 127, 81), Scalar(12, 219, 255)))); // green to blue
 		histogram.push_back(BinInfo(PLAYER_A, new ThresholdColor(Scalar(110, 67, 48), Scalar(141, 150, 158)))); // brown to gray
 		histogram.push_back(BinInfo(PLAYER_B, new ThresholdColor(Scalar(0, 0, 245), Scalar(180, 255, 255)))); // blue to light blue

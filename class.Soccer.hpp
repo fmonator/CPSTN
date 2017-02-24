@@ -9,15 +9,28 @@
 //#include "class.Drawer.hpp"
 #include "class.ObjectTracer.hpp"
 
+#include "Poco/Net/HTTPClientSession.h"
+#include "Poco/Net/HTTPRequest.h"
+#include "Poco/Net/HTTPResponse.h"
+#include <Poco/Net/HTTPCredentials.h>
+#include "Poco/StreamCopier.h"
+#include "Poco/NullStream.h"
+#include "Poco/Path.h"
+#include "Poco/URI.h"
+#include "Poco/Exception.h"
+#include "Poco/JSON/JSON.h"
+#include "Poco/JSON/Object.h"
+#include "Poco/JSON/Stringifier.h"
+
 class Soccer : public App
 {
 private:
-
+	static bool teamBAttacking;
+	static Mat warpMatrix;
 	struct SlopeLine { // Given in y = slope*x + intercept form, rearranged for x = (y - intercept)/slope
 						// put in a y-value to find the field limit in x
 	public: 
 		double slope, intercept;
-		bool teamBAttacking;
 
 		bool isThisTooFar(Point p) { // takes in a point (up to you to decide which point on object)
 			int x_limit = (p.y - intercept)/slope;
@@ -44,6 +57,9 @@ private:
 	static Size WIN_SIZE;
 	void commandArrive(string& str);
 	vector<Vec2f> lines; // for determining gameplay area and camera angle
+
+	// Networking
+	bool notifyRef();
 
 	// Spracovanie videa (video processing)
 	bool m_pause;

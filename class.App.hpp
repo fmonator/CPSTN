@@ -21,8 +21,6 @@ class App {
 protected:
 	log4cpp::Category* blog;
 	bool m_running;
-	cv::Mat M; // perspective warp matrix
-	bool teamBAttacking; // is teamBAttacking or not? Used for offside comparisons
 
 	virtual int getLockFPS() = 0;
 	virtual void Init() = 0;
@@ -33,7 +31,6 @@ protected:
 public:
 	// Prvotna inicializacia (The primary initialization)
 	App();
-
 	// Spusti aplikaciu po celkovej inicializacii (Start the application after a total initialization)
 	virtual void start();
 	// Moze bezat nadalej aplikacia, nenastal problem ?

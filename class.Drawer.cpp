@@ -140,4 +140,6 @@ void Drawer::drawROI(Mat& image, Mat& mask, vector<FrameObject*>& objs) {
 	imshow("Selected section", ROI);
 }
 
+Size Drawer::WIN_SIZE = Size(640, 480); 
+
 // Vybrana sekcia == selected section
