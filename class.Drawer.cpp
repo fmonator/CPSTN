@@ -66,7 +66,7 @@ void Drawer::draw(Mat& image, Mat& mask, vector<FrameObject*>& objs) {
 			putText(image, os.str(), obj->m_boundary.center, 0, 0.2, color, 1, 8);
 		} else if(m_drawType == 3) {
 			ostringstream os;
-			os << obj->count;
+			os << obj->getSpace();
 			putText(image, os.str(), obj->m_boundary.center, 0, 0.8, Scalar(0, 0, 0), 1, 8);
 		} else if(m_drawType == 4) {
 			ostringstream os;
@@ -83,7 +83,6 @@ void Drawer::draw(Mat& image, Mat& mask, vector<FrameObject*>& objs) {
 			rectangle(image,obj->m_boundary.boundingRect(),color);
 		}
 	}
-	rectangle(image, Point(0,0.1*480),Point(640,0.92*480),Scalar(255,0,0));
 	imshow("Output", image);
 }
 

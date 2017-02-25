@@ -63,7 +63,7 @@ void ObjectDetector::determinePerson(Mat& image, Mat& mask, FrameObject* obj, in
 	}
 }
 
-void ObjectDetector::determineObject(Mat& image, Mat& mask, FrameObject* obj, int top_bount, int bot_bound) {
+void ObjectDetector::determineObject(Mat& image, Mat& mask, FrameObject* obj, int top_bound, int bot_bound) {
 	// Artefakt
 	if( obj->pixels() < MIN_PIXELS_IN_CONTOUR) { 
 		obj->type = ARTEFACT;
@@ -72,6 +72,13 @@ void ObjectDetector::determineObject(Mat& image, Mat& mask, FrameObject* obj, in
 	float takeSpace = obj->getSpace();
 	if(takeSpace < MIN_AREA) {
 		obj->type = ARTEFACT;
+		double wh_ratio = obj->m_boundary.boundingRect().width / obj->m_boundary.boundingRect().height;
+		bool has_bounding_square = wh_ratio > 0.9 && wh_ratio < 1.1;
+		if(takeSpace > 20 && has_bounding_square) {
+			determinePerson(image, mask, obj, top_bound, bot_bound);
+			if(obj->type == PLAYER_B) obj->type = BALL;
+			else obj->type = ARTEFACT;
+		}
 		return;
 	}
 
@@ -82,7 +89,7 @@ void ObjectDetector::determineObject(Mat& image, Mat& mask, FrameObject* obj, in
 	}
 
 	// Is it person?
-	determinePerson(image, mask, obj, top_bount, bot_bound);
+	determinePerson(image, mask, obj, top_bound, bot_bound);
 }
 
 void ObjectDetector::findObjects(Mat& image, Mat& mask, vector<FrameObject*>& objects, vector<FrameObject*>& ta, vector<FrameObject*>& tb, int top_bound, int bot_bound) {		
