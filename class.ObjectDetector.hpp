@@ -73,5 +73,5 @@ public:
 		histogram.push_back(BinInfo(GOAL_KEEPER_A, new ThresholdColor(Scalar(21, 90, 0), Scalar(52, 190, 255)))); // green to blue
 	}
 
-	void findObjects(Mat& image, Mat& mask, vector<FrameObject*>& objects, vector<FrameObject*>& ta, vector<FrameObject*>& tb, int top, int bot);
+	void findObjects(Mat& image, Mat& mask, vector<FrameObject*>& objects, vector<FrameObject*>& ta, vector<FrameObject*>& tb, FrameObject* ball, int top, int bot);
 };
