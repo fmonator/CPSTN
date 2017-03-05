@@ -34,5 +34,5 @@ public:
 	void switchDebugDraw();
 	void switchTeamColoring();
 	void switchDrawType();
-	void draw(Mat& image, Mat& mask, vector<FrameObject*>& objs);
+	void draw(Mat& image, Mat& mask, vector<FrameObject*>& objs, int, int);
 };

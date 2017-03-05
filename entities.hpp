@@ -63,7 +63,10 @@ enum DetectedObjectType {
 	PLAYER_B, 
 	REFEREE,
 	BALL,
-	CONFUSED
+	CONFUSED,
+	CONFUSED_A,
+	CONFUSED_B,
+	CONFUSED_AB
 };
 
 inline ostream& operator<< (ostream& out, DetectedObjectType& type) {

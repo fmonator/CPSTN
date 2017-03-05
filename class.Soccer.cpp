@@ -393,11 +393,12 @@ void Soccer::processImage(Mat& input) {
 	vector<FrameObject*> objects, teama, teamb;
 	m_detector->findObjects(input, finalMask, objects, teama, teamb, fline_top,fline_bot);
 	m_tracer->process(input, objects);
-	m_drawer->draw(input, finalMask, objects);
+	m_drawer->draw(input, finalMask, teama,fline_top, fline_bot);
+	m_drawer->draw(input, finalMask, teamb,fline_top, fline_bot);
 }
 
 void Soccer::Init() {
-	m_record = new VideoRecord("data/filmrole6.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
+	m_record = new VideoRecord("data/filmrole5.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
 	m_pMOG2 = new BackgroundSubtractorMOG2(200, 16.0, false);
 	m_grass = new ThresholdColor(Scalar(26, 18, 8), Scalar(75, 168, 200)); // 35,72,50 to 51, 142, 144 is what Seksy had
 	m_learning = true;

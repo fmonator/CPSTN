@@ -33,29 +33,39 @@ void ObjectDetector::determinePerson(Mat& image, Mat& mask, FrameObject* obj, in
 	obj->count = info.count;
 	if(abs(info.count-info2.count) < 50) {
 		if((info.type == DetectedObjectType::PLAYER_A && info2.type == DetectedObjectType::PLAYER_B) || (info.type == DetectedObjectType::PLAYER_B && info2.type == DetectedObjectType::PLAYER_A)) {
-			obj->type = DetectedObjectType::CONFUSED;
+			obj->type = DetectedObjectType::CONFUSED_AB;
 			return;
 		}
 	}
 
 	obj->type = info.type; // prirad typ z farby (Assign the type of paint)
 	int min_count = 100;
+	//double whr_var = 
 	int adj_count = info.count / mapRange(top_bound,bot_bound,1,3.5,obj->m_boundary.center.y);
+	double area = obj->m_boundary.boundingRect().area();
 	obj->count = adj_count;
 	double scale_factor = 1.9;
+	if(area < 1000 * mapRange(top_bound,bot_bound,0.8,2.5,obj->m_boundary.center.y)) return;
+	else {
+		if(obj->type == PLAYER_A) obj->type = CONFUSED_A;
+		else if(obj->type == PLAYER_B) obj->type = CONFUSED_B;
+		else obj->type = CONFUSED;
+	}
+	return;
 	if(obj->type == DetectedObjectType::PLAYER_A) {
 		if(teamACount > min_count && (adj_count > (int)(scale_factor*averageTeamA))) {
-			obj->type = DetectedObjectType::CONFUSED;
+			obj->type = DetectedObjectType::CONFUSED_A;
 		} else {
+			averageArea = (averageArea*(teamACount+teamBCount) + 	area) / (teamACount+teamBCount+1);
 			averageTeamA = (averageTeamA*teamACount + adj_count) / (teamACount+1);
 			++teamACount;
 			//cout << "updating for team a average: " << teamACount << endl;
-			
 		}
 	} else if(obj->type == DetectedObjectType::PLAYER_B) {
 		if(teamBCount > min_count && (adj_count > (int)(scale_factor*averageTeamB))) {
-			obj->type = DetectedObjectType::CONFUSED;
+			obj->type = DetectedObjectType::CONFUSED_B;
 		} else {
+			averageArea = (averageArea*(teamACount+teamBCount) + 	area) / (teamACount+teamBCount+1);
 			//cout << "updating for team b average: " << averageTeamB << endl;
 			averageTeamB = (averageTeamB*teamBCount + adj_count) / (teamBCount+1);
 			++teamBCount;
@@ -114,6 +124,44 @@ void ObjectDetector::findObjects(Mat& image, Mat& mask, vector<FrameObject*>& ob
 			ta.push_back(obj);
 		} else if(obj->type == PLAYER_B || obj->type == GOAL_KEEPER_B || obj->type == PERSON) {
 			tb.push_back(obj);
+		} else if(obj->type == CONFUSED_A) {
+			int width = obj->m_boundary.boundingRect().width;
+			int height = obj->m_boundary.boundingRect().height;
+			Point center = obj->m_boundary.center;
+			double wh_ratio =  width / height;
+			FrameObject *p1, *p2;
+			if(wh_ratio > 1) {
+				Size psize(width/2, height);
+				p1 = new FrameObject(vector<Point>(), RotatedRect(center + Point(width/4,0), psize, obj->m_boundary.angle));
+				p2 = new FrameObject(vector<Point>(), RotatedRect(center - Point(width/4,0), psize, obj->m_boundary.angle));
+			} else {
+				Size psize(width, height/2);
+				p1 = new FrameObject(vector<Point>(), RotatedRect(center + Point(0,height/4), psize, obj->m_boundary.angle));
+				p2 = new FrameObject(vector<Point>(), RotatedRect(center - Point(0,height/4), psize, obj->m_boundary.angle));
+			}
+			p1->type = PLAYER_A;
+			p2->type = PLAYER_A;
+			ta.push_back(p1);
+			ta.push_back(p2);
+		} else if(obj->type == CONFUSED_B) {
+			int width = obj->m_boundary.boundingRect().width;
+			int height = obj->m_boundary.boundingRect().height;
+			Point center = obj->m_boundary.center;
+			double wh_ratio =  width / height;
+			FrameObject *p1, *p2;
+			if(wh_ratio > 1) {
+				Size psize(width/2, height);
+				p1 = new FrameObject(vector<Point>(), RotatedRect(center + Point(width/4,0), psize, obj->m_boundary.angle));
+				p2 = new FrameObject(vector<Point>(), RotatedRect(center - Point(width/4,0), psize, obj->m_boundary.angle));
+			} else {
+				Size psize(width, height/2);
+				p1 = new FrameObject(vector<Point>(), RotatedRect(center + Point(0,height/4), psize, obj->m_boundary.angle));
+				p2 = new FrameObject(vector<Point>(), RotatedRect(center - Point(0,height/4), psize, obj->m_boundary.angle));
+			}
+			p1->type = PLAYER_B;
+			p2->type = PLAYER_B;
+			tb.push_back(p1);
+			tb.push_back(p2);
 		}
 	}
 }

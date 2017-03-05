@@ -43,6 +43,7 @@ private:
 	unsigned int teamACount;
 	double averageTeamB;
 	unsigned int teamBCount;
+	double averageArea;
 
 	void determinePerson(Mat& image, Mat& mask, FrameObject* obj, int top, int bot);
 	void determineObject(Mat& image, Mat& mask, FrameObject* obj, int top, int bot);
@@ -64,6 +65,7 @@ public:
 		teamACount = 0;
 		averageTeamB = 0;
 		teamBCount = 0;
+		averageArea = 0;
 
 		// where is GOAL_KEEPER_B ?
 		// SO it looks like this just takes a range of colors which the object is within
