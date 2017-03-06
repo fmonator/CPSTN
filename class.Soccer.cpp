@@ -5,6 +5,7 @@
 bool Soccer::teamBAttacking; // static intitialization
 bool Soccer::pastTheIssue; // static intitialization
 int Soccer::consecutiveOffsides; // static intitialization
+FrameObject* Soccer::lastBall; // static intitialization
 Mat Soccer::warpMatrix; // static initialization
 
 Soccer::Soccer() 
@@ -407,7 +408,7 @@ void Soccer::processImage(Mat& input) {
 	if ((teamBAttacking && teama.size() > 1 && teamb.size() > 0) // need 2 defenders, 1 attacker for rule to work
 		|| (teamBAttacking==false && teamb.size() > 1 && teama.size() > 0)) { 
 
-		offside = checkOffside(teama,teamb); // COMMENT FOR DEMO
+		offside = checkOffside(teama,teamb,ball); // COMMENT FOR DEMO
 
 	}
 	
@@ -436,7 +437,14 @@ void Soccer::processImage(Mat& input) {
 	}
 }
 
-bool Soccer::checkOffside(vector<FrameObject*>teamA,vector<FrameObject*>teamB) {
+bool Soccer::checkOffside(vector<FrameObject*>teamA,vector<FrameObject*>teamB,FrameObject* ball) {
+	// step 0: deal with the ball
+	if (ball != NULL)
+		lastBall = ball;
+
+	Point2f ballPos;
+	int ballX;
+
 	// step 1: warp relevant point (farthest down or up field depending on teamBAttacking)
 	vector<Point2f> a,b; // these will be the points to compare
 	
@@ -452,6 +460,15 @@ bool Soccer::checkOffside(vector<FrameObject*>teamA,vector<FrameObject*>teamB) {
 	// I think making a warp function is the only thing
 	// each rectangle is unique so I can't generalize the width, there are different vectors in play, different sizes
 	if (teamBAttacking) { // action going <- this way
+
+		if (lastBall == NULL)
+			ballPos = Point2f(WIN_SIZE.width+1,WIN_SIZE.height/2);
+		else ballPos = Point2f(lastBall->m_boundary.boundingRect().x,lastBall->m_boundary.boundingRect().y+lastBall->m_boundary.boundingRect().height);
+
+		// warp like warpPerspective would do
+		ballPos.x = (M[0][0]*ballPos.x + M[0][1]*ballPos.y + M[0][2]) / (M[2][0]*ballPos.x + M[2][1]*ballPos.y + M[2][2]);
+		ballPos.y = (M[1][0]*ballPos.x + M[1][1]*ballPos.y + M[1][2]) / (M[2][0]*ballPos.x + M[2][1]*ballPos.y + M[2][2]);
+
 		for (int i = 0; i < teamA.size(); i++) {
 			Rect r = teamA[i]->m_boundary.boundingRect();
 			Point2f pt = Point2f(r.x,r.y+r.height);
@@ -470,6 +487,15 @@ bool Soccer::checkOffside(vector<FrameObject*>teamA,vector<FrameObject*>teamB) {
 			b.push_back(pt);
 		}
 	} else { // action going -> that way
+
+		if (lastBall == NULL)
+			ballPos = Point2f(-1,WIN_SIZE.height/2);
+		else ballPos = Point2f(lastBall->m_boundary.boundingRect().x+lastBall->m_boundary.boundingRect().width,lastBall->m_boundary.boundingRect().y+lastBall->m_boundary.boundingRect().height);
+
+		// warp like warpPerspective would do
+		ballPos.x = (M[0][0]*ballPos.x + M[0][1]*ballPos.y + M[0][2]) / (M[2][0]*ballPos.x + M[2][1]*ballPos.y + M[2][2]);
+		ballPos.y = (M[1][0]*ballPos.x + M[1][1]*ballPos.y + M[1][2]) / (M[2][0]*ballPos.x + M[2][1]*ballPos.y + M[2][2]);
+
 		for (int i = 0; i < teamA.size(); i++) {
 			Rect r = teamA[i]->m_boundary.boundingRect();
 			Point2f pt = Point2f(r.x+r.width,r.y+r.height);
@@ -494,12 +520,14 @@ bool Soccer::checkOffside(vector<FrameObject*>teamA,vector<FrameObject*>teamB) {
 
 	// step 3: check for offside
 	float firstAttacker, secondLastDefender;
+	ballX = ballPos.x;
+
 	if (teamBAttacking == false) { // attacking -> that way
         
         firstAttacker = a[a.size()-1].x; // this is why we need at least one attacker
         secondLastDefender = b[b.size()-2].x; // this is why we need at least 2 defenders
         
-        if (firstAttacker > secondLastDefender) {
+        if ((firstAttacker > secondLastDefender) && (firstAttacker > ballX)) {
             std::cout << "OFFSIDE" << std::endl;
             std::cout << "Team A striker: " << firstAttacker <<std::endl;
             std::cout << "Team B defender: " << secondLastDefender <<std::endl;
@@ -515,7 +543,7 @@ bool Soccer::checkOffside(vector<FrameObject*>teamA,vector<FrameObject*>teamB) {
         firstAttacker = b[0].x; // this is why we need at least one attacker
         secondLastDefender = a[1].x; // this is why we need at least 2 defenders
         
-        if (firstAttacker < secondLastDefender) {
+        if ((firstAttacker < secondLastDefender) && (firstAttacker < ballX)) {
             std::cout << "OFFSIDE" << std::endl;
             std::cout << "Team B striker: " << firstAttacker <<std::endl;
             std::cout << "Team A defender: " << secondLastDefender <<std::endl;
@@ -557,7 +585,7 @@ void Soccer::vecSort(vector<Point2f> &a,vector<Point2f> &b) {
 }
 
 void Soccer::Init() {
-	m_record = new VideoRecord("data/filmrole6.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
+	m_record = new VideoRecord("data/filmrole5.avi"); // note: 3 and 4 are of centre field, focus on 1,2,5,6
 	m_pMOG2 = new BackgroundSubtractorMOG2(200, 16.0, false);
 	m_grass = new ThresholdColor(Scalar(26, 18, 8), Scalar(75, 168, 200)); // 35,72,50 to 51, 142, 144 is what Seksy had
 	m_learning = true;

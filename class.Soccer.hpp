@@ -29,6 +29,7 @@ private:
 	static bool teamBAttacking;
 	static bool pastTheIssue;
 	static int consecutiveOffsides;
+	static FrameObject *lastBall;
 	static Mat warpMatrix;
 	struct SlopeLine { // Given in y = slope*x + intercept form, rearranged for x = (y - intercept)/slope
 						// put in a y-value to find the field limit in x
@@ -63,7 +64,7 @@ private:
 
 	// Networking/offside
 	bool notifyRef();
-	bool checkOffside(vector<FrameObject*>teamA,vector<FrameObject*>teamB);
+	bool checkOffside(vector<FrameObject*>teamA,vector<FrameObject*>teamB,FrameObject* ball);
 	void vecSort(vector<Point2f> &a, vector<Point2f> &b);
 
 	// Spracovanie videa (video processing)
