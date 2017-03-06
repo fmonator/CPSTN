@@ -78,12 +78,12 @@ void Drawer::draw(Mat& image, Mat& mask, vector<FrameObject*>& objs) {
 			ostringstream os;
 			os << obj->type;
 			string label = "(" + to_string(obj->m_boundary.boundingRect().area()) + ", " + to_string((float)obj->m_boundary.boundingRect().width/obj->m_boundary.boundingRect().height);
-			if(obj->type == CONFUSED) putText(image, "CONFUSED", obj->m_boundary.center, 0, 0.8, color, 1, 8);
+			//if(obj->type == CONFUSED) putText(image, "CONFUSED", obj->m_boundary.center, 0, 0.8, color, 1, 8);
 			//ellipse(image, objs.at(i)->m_boundary, color, 1);
 			rectangle(image,obj->m_boundary.boundingRect(),color);
 		}
 	}
-	rectangle(image, Point(0,0.1*480),Point(640,0.92*480),Scalar(255,0,0));
+	//rectangle(image, Point(0,0.1*480),Point(640,0.92*480),Scalar(255,0,0));
 	imshow("Output", image);
 }
 

@@ -41,7 +41,12 @@ in the Proceeding of the 6th IEEE International Conference on Advanced Video and
 - You have to build one specific project: log4cpp -> msvc10 -> log4cppLIB
 
 ### POCO
-- Extract it, find 'components' file and add these each on a new line: Foundation/include/Poco/*,XML/include/Poco/*,JSON/include/Poco/*,Util/include/Poco/*,Net/include/Poco/*
+- Extract it, find 'components' file and add these each on a new line: 
+Foundation/include/Poco/*
+XML/include/Poco/*
+JSON/include/Poco/*
+Util/include/Poco/*
+Net/include/Poco/*
 - Command line in the folder where components is (hereafter referred to as 'root') and run 'build_vs110.cmd build all'
 - Wait ten years
 - Move root into your project

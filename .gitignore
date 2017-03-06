@@ -8,7 +8,6 @@ data/*.avi
 *.suo
 *.vcxproj.user
 *.sln
-*.dll
 
 # Other dependencies
 poco-1.7.8/*

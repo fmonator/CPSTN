@@ -3,6 +3,8 @@
 #include "util.h"
 
 bool Soccer::teamBAttacking; // static intitialization
+bool Soccer::pastTheIssue; // static intitialization
+int Soccer::consecutiveOffsides; // static intitialization
 Mat Soccer::warpMatrix; // static initialization
 
 Soccer::Soccer() 
@@ -16,6 +18,9 @@ Soccer::Soccer()
 	// Field lines defaults
 	fline_bot = INT_MAX;
 	fline_top = 0;
+
+	consecutiveOffsides = 0;
+	pastTheIssue = false;
 }
 
 Soccer::~Soccer() {
@@ -100,7 +105,7 @@ void Soccer::loadNextFrame() {
 		m_actual = m_record->readNext();
 	}
 	if(log != NULL) {
-		//log->debugStream() << "Image: " << m_actual->pos_msec;
+		// log->debugStream() << "Image: " << m_actual->pos_msec;
 	}
 }
 
@@ -295,9 +300,11 @@ Mat Soccer::getWarpMatrix() {
 			Mat theNewOne = m_actual->data.clone();
 			warpPerspective(m_actual->data, theNewOne, warpMatrix, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
 			imshow("Source", m_actual->data);
-			imshow("FIELD CORNER", cdst);
+			
 			imshow("Warped", theNewOne);
 			*/
+
+			//imshow("FIELD CORNER", cdst);
 
 			return m;
 }
@@ -313,10 +320,10 @@ void Soccer::processFrame(Frame* in) {
 		if (in->pos_msec == 1) { // starts at 1 not at 0.
 			
 			warpMatrix = getWarpMatrix();
+			//Mat newOne = m_actual->data.clone();
+			//warpPerspective(m_actual->data.clone(), newOne, warpMatrix, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
+			//imshow("Warped Perspective", newOne);
 		}
-
-		//Mat newOne = m_actual->data.clone();
-		//warpPerspective(m_actual->data, newOne, M, WIN_SIZE, INTER_LINEAR, BORDER_CONSTANT, Scalar());
 
 		if(in->pos_msec < m_mogLearnFrames) { // here's where it trains
 			Mat mask;
@@ -332,19 +339,12 @@ void Soccer::processFrame(Frame* in) {
 		return;
 	} 
 	
-	 // No idea why Seksy had this but I used it to test the post 
+	 // No idea why Seksy had this but I used it to test things, get screenshots
 	// Pauza pre konkretny snimok (Pause for specific frames)
 	/*
-	if(in->pos_msec == 10) {
+	if(in->pos_msec == 2) {
 		
-		while (true) {
-			bool pass = notifyRef();
-			if (pass) {
-				std::cout<<"SUCCESS\n";
-				break;
-			} else
-				std::cout<<"FAILURE\n";
-		}
+		m_pause = true;
 		
 	}
 	*/
@@ -375,19 +375,25 @@ void Soccer::processImage(Mat& input) {
 	// Opening
 	erode(mogMask, mogMask, Mat(), Point(-1,-1), 1);
 	dilate(mogMask, mogMask, Mat(), Point(-1,-1), 3);
-	//imshow("mogMask", mogMask); 
 
 	// Ziskaj masku travy cez farbu
 	// (Earn mask grass over color)
 	Mat grassMask = m_grass->getMask(input);
 	bitwise_not(grassMask, grassMask);
-	m_grass->createTrackBars("grassMask");
-	//imshow("grassMask",grassMask); 
+	//m_grass->createTrackBars("grassMask");
 	
 	// Vypracuj spolocnu masku (Elaborate common mask)
 	Mat finalMask;
 	bitwise_and(grassMask, mogMask, finalMask);
-	//imshow("finalMask", finalMask); 
+
+
+	// DEMO
+	/*
+	imshow("finalMask", finalMask); 
+	imshow("grassMask",grassMask); 
+	imshow("mogMask", mogMask); 
+	*/
+	
 	
 	// Najdi objekty (Find objects)
 	vector<FrameObject*> objects, teama, teamb;
@@ -395,6 +401,159 @@ void Soccer::processImage(Mat& input) {
 	m_detector->findObjects(input, finalMask, objects, teama, teamb, ball, fline_top,fline_bot);
 	m_tracer->process(input, objects);
 	m_drawer->draw(input, finalMask, objects);
+
+	bool offside = false;
+	time_t t1, t2;
+	if ((teamBAttacking && teama.size() > 1 && teamb.size() > 0) // need 2 defenders, 1 attacker for rule to work
+		|| (teamBAttacking==false && teamb.size() > 1 && teama.size() > 0)) { 
+
+		offside = checkOffside(teama,teamb); // COMMENT FOR DEMO
+
+	}
+	
+	if (offside) consecutiveOffsides++;
+	else consecutiveOffsides=0;
+
+	if (pastTheIssue && consecutiveOffsides > 4) { // consider this a true offside
+		while (true) {
+
+			time(&t1);
+
+			bool pass = notifyRef();
+			if (pass) {
+				std::cout<<"SUCCESS\n";
+				break;
+			} else
+				std::cout<<"FAILURE\n";
+		}	
+	time(&t2);
+	int timev = t2 - t1;
+	std::cout<<"time to send (s) : "<<timev<<std::endl;
+		consecutiveOffsides = 0; // reset
+		while (true) std::cout<<"";
+	} else if (consecutiveOffsides > 8) { // deal with the confusion typical of the edge of the frame
+		pastTheIssue = true;
+	}
+}
+
+bool Soccer::checkOffside(vector<FrameObject*>teamA,vector<FrameObject*>teamB) {
+	// step 1: warp relevant point (farthest down or up field depending on teamBAttacking)
+	vector<Point2f> a,b; // these will be the points to compare
+	
+	// make accessing matrix elements a little neater:
+	double M[3][3];
+	for (int i = 0; i < warpMatrix.rows; i++) {
+		for (int j = 0; j < warpMatrix.cols; j++) {
+			M[i][j] = warpMatrix.at<double>(i,j);
+		}
+	}
+
+	// TODO: can this be cleaned up?
+	// I think making a warp function is the only thing
+	// each rectangle is unique so I can't generalize the width, there are different vectors in play, different sizes
+	if (teamBAttacking) { // action going <- this way
+		for (int i = 0; i < teamA.size(); i++) {
+			Rect r = teamA[i]->m_boundary.boundingRect();
+			Point2f pt = Point2f(r.x,r.y+r.height);
+			// warp like warpPerspective would do
+			pt.x = (M[0][0]*pt.x + M[0][1]*pt.y + M[0][2]) / (M[2][0]*pt.x + M[2][1]*pt.y + M[2][2]);
+			pt.y = (M[1][0]*pt.x + M[1][1]*pt.y + M[1][2]) / (M[2][0]*pt.x + M[2][1]*pt.y + M[2][2]);
+			a.push_back(pt);
+		}
+		
+		for (int i = 0; i < teamB.size(); i++) {
+			Rect r = teamB[i]->m_boundary.boundingRect();
+			Point2f pt = Point2f(r.x,r.y+r.height);
+			// warp like warpPerspective would do
+			pt.x = (M[0][0]*pt.x + M[0][1]*pt.y + M[0][2]) / (M[2][0]*pt.x + M[2][1]*pt.y + M[2][2]);
+			pt.y = (M[1][0]*pt.x + M[1][1]*pt.y + M[1][2]) / (M[2][0]*pt.x + M[2][1]*pt.y + M[2][2]);
+			b.push_back(pt);
+		}
+	} else { // action going -> that way
+		for (int i = 0; i < teamA.size(); i++) {
+			Rect r = teamA[i]->m_boundary.boundingRect();
+			Point2f pt = Point2f(r.x+r.width,r.y+r.height);
+			// warp like warpPerspective would do
+			pt.x = (M[0][0]*pt.x + M[0][1]*pt.y + M[0][2]) / (M[2][0]*pt.x + M[2][1]*pt.y + M[2][2]);
+			pt.y = (M[1][0]*pt.x + M[1][1]*pt.y + M[1][2]) / (M[2][0]*pt.x + M[2][1]*pt.y + M[2][2]);
+			a.push_back(pt);
+		}
+		
+		for (int i = 0; i < teamB.size(); i++) {
+			Rect r = teamB[i]->m_boundary.boundingRect();
+			Point2f pt = Point2f(r.x+r.width,r.y+r.height);
+			// warp like warpPerspective would do
+			pt.x = (M[0][0]*pt.x + M[0][1]*pt.y + M[0][2]) / (M[2][0]*pt.x + M[2][1]*pt.y + M[2][2]);
+			pt.y = (M[1][0]*pt.x + M[1][1]*pt.y + M[1][2]) / (M[2][0]*pt.x + M[2][1]*pt.y + M[2][2]);
+			b.push_back(pt);
+		}
+	}
+
+	// step 2: sort vectors
+	vecSort(a,b);
+
+	// step 3: check for offside
+	float firstAttacker, secondLastDefender;
+	if (teamBAttacking == false) { // attacking -> that way
+        
+        firstAttacker = a[a.size()-1].x; // this is why we need at least one attacker
+        secondLastDefender = b[b.size()-2].x; // this is why we need at least 2 defenders
+        
+        if (firstAttacker > secondLastDefender) {
+            std::cout << "OFFSIDE" << std::endl;
+            std::cout << "Team A striker: " << firstAttacker <<std::endl;
+            std::cout << "Team B defender: " << secondLastDefender <<std::endl;
+			return true;
+        } else {
+            std::cout << "ONSIDE"<<std::endl;
+            std::cout << "Team A striker: " << firstAttacker <<std::endl;
+            std::cout << "Team B defender: " << secondLastDefender <<std::endl;
+			return false;
+        }
+    } else { // attacking <- this way 
+        
+        firstAttacker = b[0].x; // this is why we need at least one attacker
+        secondLastDefender = a[1].x; // this is why we need at least 2 defenders
+        
+        if (firstAttacker < secondLastDefender) {
+            std::cout << "OFFSIDE" << std::endl;
+            std::cout << "Team B striker: " << firstAttacker <<std::endl;
+            std::cout << "Team A defender: " << secondLastDefender <<std::endl;
+			return true;
+        } else {
+            std::cout << "ONSIDE"<<std::endl;
+            std::cout << "Team B striker: " << firstAttacker <<std::endl;
+            std::cout << "Team A defender: " << secondLastDefender <<std::endl;
+			return false;
+        }
+    }
+}
+
+void Soccer::vecSort(vector<Point2f> &a,vector<Point2f> &b) {
+	// small problem set so insertion sort (low overhead)
+	Point2f temp;
+	int i,j;
+	
+	for (i = 1; i < a.size(); i++) {
+		temp = a[i];
+		j = i - 1;
+		while (j >= 0 && a[j].x > temp.x) {
+			a[j+1] = a[j];
+			j--;
+		}
+		a[j+1]=temp;
+	}
+
+	for (i = 1; i < b.size(); i++) {
+		temp = b[i];
+		j = i - 1;
+		while (j >= 0 && b[j].x > temp.x) {
+			b[j+1] = b[j];
+			j--;
+		}
+		b[j+1]=temp;
+	}
+
 }
 
 void Soccer::Init() {
@@ -430,7 +589,10 @@ bool Soccer::notifyRef() {
 	response.setKeepAlive(true);
 
 	Poco::JSON::Object obj;
-    obj.set("team", "A");
+	if (teamBAttacking)
+		obj.set("team", "B");
+	else
+		obj.set("team", "A");
 	std::stringstream ss;
 	obj.stringify(ss);
 	request.setKeepAlive(true);
@@ -438,6 +600,8 @@ bool Soccer::notifyRef() {
 	request.setContentType("application/json"); 
 
 	response.setStatus(Poco::Net::HTTPResponse::HTTP_FORBIDDEN); // just doing this because OK is the default.
+
+	std::cout<<"JSON sent: \n"<<ss.rdbuf() << std::endl;
 
 	std::ostream& o = session.sendRequest(request);
 	obj.stringify(o);
@@ -447,7 +611,7 @@ bool Soccer::notifyRef() {
     if (response.getStatus() == Poco::Net::HTTPResponse::HTTP_OK)
     {
 		std::cout<<response.getContentType()<<std::endl;
-		std::cout << i.rdbuf();
+		std::cout << "JSON received: \n"<<i.rdbuf()<<std::endl;
         return true;
     }
     else
