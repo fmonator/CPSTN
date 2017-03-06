@@ -27,6 +27,8 @@ class Soccer : public App
 {
 private:
 	static bool teamBAttacking;
+	static bool pastTheIssue;
+	static int consecutiveOffsides;
 	static Mat warpMatrix;
 	struct SlopeLine { // Given in y = slope*x + intercept form, rearranged for x = (y - intercept)/slope
 						// put in a y-value to find the field limit in x
@@ -59,8 +61,10 @@ private:
 	void commandArrive(string& str);
 	vector<Vec2f> lines; // for determining gameplay area and camera angle
 
-	// Networking
+	// Networking/offside
 	bool notifyRef();
+	bool checkOffside(vector<FrameObject*>teamA,vector<FrameObject*>teamB);
+	void vecSort(vector<Point2f> &a, vector<Point2f> &b);
 
 	// Spracovanie videa (video processing)
 	bool m_pause;
