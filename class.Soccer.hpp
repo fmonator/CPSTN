@@ -7,9 +7,6 @@
 #include <opencv2/video/background_segm.hpp>
 #include "class.ThresholdColor.hpp"
 #include "class.ObjectDetector.hpp"
-//#include "class.Drawer.hpp"
-#include "class.ObjectTracer.hpp"
-
 #include "Poco/Net/HTTPClientSession.h"
 #include "Poco/Net/HTTPRequest.h"
 #include "Poco/Net/HTTPResponse.h"
@@ -86,8 +83,6 @@ private:
 	void processImage(Mat& input);
 	Mat getWarpMatrix();
 	ThresholdColor* m_grass;
-
-	ObjectTracer* m_tracer;
 
 	// Field lines
 	int fline_top;
