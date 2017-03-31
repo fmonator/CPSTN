@@ -31,7 +31,6 @@ Soccer::~Soccer() {
 	SAFE_DELETE(m_drawer);
 	SAFE_DELETE(m_grass);
 	SAFE_RELEASE(m_actual);
-	SAFE_DELETE(m_tracer);
 	if(log != NULL) log->debug("Ending Soccer");
 }
 
@@ -364,7 +363,6 @@ void Soccer::learningEnd() {
 	log->debugStream() << "End of learning.";
 	m_detector = new ObjectDetector();
 	m_drawer = new Drawer();
-	m_tracer = new ObjectTracer();
 }
 
 void Soccer::processImage(Mat& input) {
@@ -400,7 +398,6 @@ void Soccer::processImage(Mat& input) {
 	vector<FrameObject*> objects, teama, teamb;
 	FrameObject* ball = NULL;
 	m_detector->findObjects(input, finalMask, objects, teama, teamb, ball, fline_top,fline_bot);
-	m_tracer->process(input, objects);
 	m_drawer->draw(input, finalMask, objects);
 
 	bool offside = false;
